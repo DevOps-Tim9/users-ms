@@ -5,6 +5,7 @@ import (
 	"testing"
 	"user-ms/src/auth0"
 	"user-ms/src/dto"
+	"user-ms/src/mapper"
 	"user-ms/src/model"
 	"user-ms/src/repository"
 
@@ -67,8 +68,14 @@ func (suite *UserServiceUnitTestsSuite) TestUserService_Register_ValidDataProvid
 		Gender:      &gender,
 	}
 
+	user := mapper.RegistrationRequestDTOToUser(&userDTO)
+	user.Auth0ID = "123"
+
+	forReturn := mapper.UserToDTO(user)
+
 	suite.userRepositoryMock.On("AddUser", mock.AnythingOfType("*model.User")).Return(1, nil).Once()
-	suite.auth0ClientMock.On("Register", userDTO.Email, userDTO.Password).Return("", nil).Once()
+	suite.auth0ClientMock.On("Register", userDTO.Email, userDTO.Password).Return("123", nil).Once()
+	suite.userRepositoryMock.On("Update", mock.AnythingOfType("*model.User")).Return(forReturn, nil).Once()
 	userID, err := suite.service.Register(&userDTO)
 
 	assert.Equal(suite.T(), 1, userID)

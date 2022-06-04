@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"user-ms/src/dto"
+	"user-ms/src/mapper"
 	"user-ms/src/model"
 
 	"github.com/jinzhu/gorm"
@@ -10,6 +12,7 @@ import (
 type IUserRepository interface {
 	AddUser(*model.User) (int, error)
 	DeleteUser(int) error
+	Update(*model.User) (*dto.UserResponseDTO, error)
 }
 
 func NewUserRepository(database *gorm.DB) IUserRepository {
@@ -40,4 +43,14 @@ func (repo *UserRepository) DeleteUser(id int) error {
 	}
 
 	return nil
+}
+
+func (repo *UserRepository) Update(user *model.User) (*dto.UserResponseDTO, error) {
+	result := repo.Database.Save(&user)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return mapper.UserToDTO(user), nil
 }

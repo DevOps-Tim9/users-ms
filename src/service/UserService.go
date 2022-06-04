@@ -56,12 +56,15 @@ func (service *UserService) Register(userToRegister *dto.RegistrationRequestDTO)
 		return -1, err
 	}
 
-	if _, err := service.Auth0Client.Register(userToRegister.Email, userToRegister.Password); err != nil {
+	if auth0ID, err := service.Auth0Client.Register(userToRegister.Email, userToRegister.Password); err != nil {
 		fmt.Println(err)
 		if err = service.UserRepo.DeleteUser(addedUserID); err != nil {
 			return -1, err
 		}
 		return -1, err
+	} else {
+		user.Auth0ID = auth0ID
+		service.UserRepo.Update(user)
 	}
 
 	return addedUserID, nil

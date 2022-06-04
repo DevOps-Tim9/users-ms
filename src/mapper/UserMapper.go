@@ -18,3 +18,25 @@ func RegistrationRequestDTOToUser(registeredUserDto *dto.RegistrationRequestDTO)
 	user.Password = registeredUserDto.Password
 	return &user
 }
+
+func UserToDTO(userEntity *model.User) *dto.UserResponseDTO {
+	var user dto.UserResponseDTO
+
+	user.ID = userEntity.ID
+	user.Auth0ID = userEntity.Auth0ID
+	user.FirstName = userEntity.FirstName
+	user.LastName = userEntity.LastName
+	user.Email = userEntity.Email
+	user.PhoneNumber = userEntity.PhoneNumber
+	user.Gender = userEntity.Gender
+	user.Username = userEntity.Username
+	user.DateOfBirth = userEntity.DateOfBirth
+	user.Biography = userEntity.Biography
+	user.Education = userEntity.Education
+	user.WorkExperience = userEntity.WorkExperience
+	user.Skills = userEntity.Skills
+	user.Interests = userEntity.Interests
+	user.Public = userEntity.Public
+
+	return &user
+}
