@@ -19,6 +19,7 @@ type Auth0Client interface {
 	Register(email string, password string) (string, error)
 	getAPIToken() (string, error)
 	setRole(string, string) error
+	Update(email string, auth0ID string) error
 }
 
 type auth0Client struct {
@@ -53,6 +54,11 @@ type RegistrationResponse struct {
 
 type RoleRequest struct {
 	Roles []string `json:"roles"`
+}
+
+type UpdateRequest struct {
+	Email      string `json:"email"`
+	Connection string `json:"connection"`
 }
 
 func (c *auth0Client) Register(email string, password string) (string, error) {
@@ -145,6 +151,43 @@ func (c *auth0Client) setRole(userId string, apiToken string) error {
 		fmt.Println(res.StatusCode)
 		fmt.Println(res.Body)
 		return errors.New("Failed to assign role to user on Auth0")
+	}
+
+	return nil
+}
+
+func (c *auth0Client) Update(email string, auth0ID string) error {
+	apiToken, err := c.getAPIToken()
+
+	if err != nil {
+		return err
+	}
+
+	// with this endpoint, user role cannot be set
+	fmt.Println(auth0ID)
+	endpoint := fmt.Sprintf("https://%s/api/v2/users/%s", c.domain, auth0ID)
+
+	b, _ := json.Marshal(&UpdateRequest{Email: email, Connection: "Dislinkt-User"})
+
+	req, _ := http.NewRequest("PATCH", endpoint, bytes.NewBuffer(b))
+	req.Header.Set("content-type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiToken))
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != 200 {
+		fmt.Println(res.StatusCode)
+		b, err := io.ReadAll(res.Body)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		fmt.Println(string(b))
+		return errors.New("Failed to update user on Auth0")
 	}
 
 	return nil

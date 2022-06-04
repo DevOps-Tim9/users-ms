@@ -40,3 +40,24 @@ func UserToDTO(userEntity *model.User) *dto.UserResponseDTO {
 
 	return &user
 }
+
+func UserUpdateDTOToUser(userUpdateDTO *dto.UserUpdateDTO) *model.User {
+	var user model.User
+
+	user.ID = userUpdateDTO.ID
+	user.FirstName = userUpdateDTO.FirstName
+	user.LastName = userUpdateDTO.LastName
+	user.Email = userUpdateDTO.Email
+	user.PhoneNumber = userUpdateDTO.PhoneNumber
+	user.Gender = userUpdateDTO.Gender
+	user.Username = userUpdateDTO.Username
+	user.DateOfBirth = userUpdateDTO.DateOfBirth
+	user.Biography = userUpdateDTO.Biography
+	user.Education = userUpdateDTO.Education
+	user.WorkExperience = userUpdateDTO.WorkExperience
+	user.Skills = userUpdateDTO.Skills
+	user.Interests = userUpdateDTO.Interests
+	user.Public = userUpdateDTO.Public
+
+	return &user
+}
