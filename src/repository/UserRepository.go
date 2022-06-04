@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+	"fmt"
 	"user-ms/src/dto"
 	"user-ms/src/mapper"
 	"user-ms/src/model"
@@ -13,6 +15,8 @@ type IUserRepository interface {
 	AddUser(*model.User) (int, error)
 	DeleteUser(int) error
 	Update(*model.User) (*dto.UserResponseDTO, error)
+	GetByID(int) (*model.User, error)
+	GetByEmail(string) (*dto.UserResponseDTO, error)
 }
 
 func NewUserRepository(database *gorm.DB) IUserRepository {
@@ -53,4 +57,26 @@ func (repo *UserRepository) Update(user *model.User) (*dto.UserResponseDTO, erro
 	}
 
 	return mapper.UserToDTO(user), nil
+}
+
+func (repo *UserRepository) GetByID(id int) (*model.User, error) {
+	userEntity := model.User{
+		ID: id,
+	}
+	if err := repo.Database.Where("ID = ?", id).First(&userEntity).Error; err != nil {
+		return nil, errors.New(fmt.Sprintf("User with ID %d not found", id))
+	}
+
+	return &userEntity, nil
+}
+
+func (repo *UserRepository) GetByEmail(email string) (*dto.UserResponseDTO, error) {
+	userEntity := model.User{
+		Email: email,
+	}
+	if err := repo.Database.Where("email = ?", email).First(&userEntity).Error; err != nil {
+		return nil, errors.New(fmt.Sprintf("User with email %s not found", email))
+	}
+
+	return mapper.UserToDTO(&userEntity), nil
 }
