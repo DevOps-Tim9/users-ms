@@ -57,3 +57,4 @@ func (handler *UserHandler) Update(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, userDTO)
 }
+
