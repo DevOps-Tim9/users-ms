@@ -20,6 +20,8 @@ type UserService struct {
 
 type IUserService interface {
 	Register(*dto.RegistrationRequestDTO) (int, error)
+	GetByEmail(string) (*dto.UserResponseDTO, error)
+	Update(*dto.UserUpdateDTO) (*dto.UserResponseDTO, error)
 }
 
 func NewUserService(userRepository repository.IUserRepository, auth0Client auth0.Auth0Client) IUserService {

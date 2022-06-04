@@ -30,3 +30,19 @@ func (u *UserRepositoryMock) Update(user *model.User) (*dto.UserResponseDTO, err
 	}
 	return nil, args.Get(1).(error)
 }
+
+func (u *UserRepositoryMock) GetByEmail(email string) (*dto.UserResponseDTO, error) {
+	args := u.Called(email)
+	if args.Get(1) == nil {
+		return args.Get(0).(*dto.UserResponseDTO), nil
+	}
+	return nil, args.Get(1).(error)
+}
+
+func (u *UserRepositoryMock) GetByID(id int) (*model.User, error) {
+	args := u.Called(id)
+	if args.Get(1) == nil {
+		return args.Get(0).(*model.User), nil
+	}
+	return nil, args.Get(1).(error)
+}
