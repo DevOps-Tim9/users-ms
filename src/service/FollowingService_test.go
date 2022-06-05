@@ -81,7 +81,7 @@ func (suite *FollowingTestsSuite) TestNewFollower() {
 		FollowerId:  2222,
 	}
 	suite.followerRepositoryMock.On("AddFollower", mock.AnythingOfType("*model.Follower")).Return(1, nil).Once()
-	followerId, err := suite.service.CreateRequest(&followingRequestDTO)
+	followerId, err := suite.service.CreateFollower(&followingRequestDTO)
 
 	assert.Equal(suite.T(), 1, followerId)
 	assert.Equal(suite.T(), nil, err)
