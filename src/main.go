@@ -35,7 +35,8 @@ func initDB() *gorm.DB {
 	}
 
 	db.AutoMigrate(model.User{})
-
+	db.AutoMigrate(model.FollowingRequest{})
+	db.AutoMigrate(model.Follower{})
 	return db
 }
 
@@ -67,6 +68,33 @@ func handleUserFunc(handler *handler.UserHandler, router *gin.Engine) {
 	router.PUT("/users", handler.Update)
 }
 
+func initFollowerRepository(database *gorm.DB) *repository.FollowerRepository {
+	return &repository.FollowerRepository{Database: database}
+}
+
+func initFollowingRequestRepository(database *gorm.DB) *repository.FollowingRequestRepository {
+	return &repository.FollowingRequestRepository{Database: database}
+}
+
+func initFollowingService(followerRepository *repository.FollowerRepository, followingRequestRepository *repository.FollowingRequestRepository) *service.FollowingService {
+	return &service.FollowingService{FollowerRepository: followerRepository, FollowingRequestRepository: followingRequestRepository}
+}
+
+func initFollowingHandler(service *service.FollowingService) *handler.FollowingHandler {
+	return &handler.FollowingHandler{Service: service}
+}
+
+func handleFollowingFunc(handler *handler.FollowingHandler, router *gin.Engine) {
+	router.POST("/requests", handler.CreateRequest)
+	router.POST("/follower", handler.CreatFollower)
+	router.PUT("/requests/:id", handler.UpdateRequest)
+	router.GET("/requests", handler.GetRequest)
+	router.GET("/requests/:id", handler.GetRequestsByFollowingID)
+	router.GET("user/:id/followers", handler.GetFollowers)
+	router.GET("user/:id/following", handler.GetFollowing)
+	router.DELETE("user/:id/removeFollower/:followingId+", handler.RemoveFollowing)
+}
+
 func main() {
 
 	err := godotenv.Load(".env")
@@ -84,8 +112,14 @@ func main() {
 	userService := initUserService(userRepo, auth0Client)
 	userHandler := initUserHandler(userService)
 
+	followingReqRepo := initFollowingRequestRepository(database)
+	followerRepo := initFollowerRepository(database)
+	followingService := initFollowingService(followerRepo, followingReqRepo)
+	followingHandler := initFollowingHandler(followingService)
+
 	router := gin.Default()
 
+	handleFollowingFunc(followingHandler, router)
 	handleUserFunc(userHandler, router)
 
 	http.ListenAndServe(port, cors.AllowAll().Handler(router))
