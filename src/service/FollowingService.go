@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"strconv"
 	"user-ms/src/dto"
 	"user-ms/src/mapper"
 	"user-ms/src/model"
@@ -16,6 +15,8 @@ type FollowingService struct {
 
 type IFollowingService interface {
 	CreateRequest(*dto.FollowingRequestDTO) (int, error)
+	UpdateRequest(int, *dto.FollowingRequestDTO) (*dto.FollowingRequestDTO, error)
+	CreateFollower(*dto.FollowingRequestDTO) (int, error)
 }
 
 func NewFollowingService(followerRepository repository.IFollowerRepository, followingRequestRepository repository.IFollowingRequestRepository) IFollowingService {
@@ -33,16 +34,16 @@ func (service *FollowingService) CreateRequest(request *dto.FollowingRequestDTO)
 	return followingRequestId, nil
 }
 
-func (service *FollowingService) UpdateRequest(reqId int, request *dto.FollowingRequestDTO) (string, error) {
-	followingRequestId, err := service.FollowingRequestRepository.UpdateFollowingRequest(reqId, mapper.FollowingDTOToRequestFollower(request))
+func (service *FollowingService) UpdateRequest(reqId int, request *dto.FollowingRequestDTO) (*dto.FollowingRequestDTO, error) {
+	followingRequest, err := service.FollowingRequestRepository.UpdateFollowingRequest(reqId, mapper.FollowingDTOToRequestFollower(request))
 	if err != nil {
-		return string(-1), errors.New("can't create the request")
+		return mapper.RequestToFollowingDTO(followingRequest), errors.New("can't create the request")
 	}
 	status := model.RequestStatus(request.RequestStatus)
 	if model.ACCEPTED == status {
 		_, _ = service.FollowerRepository.AddFollower(mapper.FollowingDTOToFollower(request))
 	}
-	return "Updated request " + strconv.Itoa(followingRequestId), nil
+	return mapper.RequestToFollowingDTO(followingRequest), nil
 }
 
 func (service *FollowingService) GetRequests() ([]model.FollowingRequest, error) {

@@ -9,7 +9,7 @@ import (
 
 type IFollowingRequestRepository interface {
 	AddFollowingRequest(*model.FollowingRequest) (int, error)
-	UpdateFollowingRequest(int, *model.FollowingRequest) (int, error)
+	UpdateFollowingRequest(int, *model.FollowingRequest) (*model.FollowingRequest, error)
 	DeleteFollowingRequest(int) error
 	GetRequests() []model.FollowingRequest
 	GetRequestsByFollowingID(int) []model.FollowingRequest
@@ -35,15 +35,15 @@ func (repo *FollowingRequestRepository) AddFollowingRequest(followingRequest *mo
 	return followingRequest.ID, nil
 }
 
-func (repo *FollowingRequestRepository) UpdateFollowingRequest(reqId int, followingRequest *model.FollowingRequest) (int, error) {
+func (repo *FollowingRequestRepository) UpdateFollowingRequest(reqId int, followingRequest *model.FollowingRequest) (*model.FollowingRequest, error) {
 	followingRequest.ID = reqId
 	result := repo.Database.Save(followingRequest)
 
 	if result.Error != nil {
-		return -1, result.Error
+		return nil, result.Error
 	}
 
-	return followingRequest.ID, nil
+	return followingRequest, nil
 }
 
 func (repo *FollowingRequestRepository) DeleteFollowingRequest(id int) error {

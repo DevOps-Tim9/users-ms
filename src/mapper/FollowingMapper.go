@@ -22,6 +22,14 @@ func FollowingDTOToRequestFollower(followingRequestDTO *dto.FollowingRequestDTO)
 	return &followingRequest
 }
 
+func RequestToFollowingDTO(request *model.FollowingRequest) *dto.FollowingRequestDTO {
+	var follower dto.FollowingRequestDTO
+	follower.FollowingId = request.FollowerId
+	follower.FollowerId = request.FollowingId
+	follower.RequestStatus = int(request.RequestStatus)
+	return &follower
+}
+
 func FollowingRequestToFollower(request *model.FollowingRequest) *model.Follower {
 	var follower model.Follower
 	follower.FollowingId = request.FollowerId
