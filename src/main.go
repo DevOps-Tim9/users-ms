@@ -91,6 +91,8 @@ func handleFollowingFunc(handler *handler.FollowingHandler, router *gin.Engine) 
 	router.GET("user/:id/followers", handler.GetFollowers)
 	router.GET("user/:id/following", handler.GetFollowing)
 	router.DELETE("user/:id/removeFollower/:followingId+", handler.RemoveFollowing)
+	router.GET("/users", handler.GetByEmail)
+	router.PUT("/users", handler.Update)
 }
 
 func main() {
@@ -118,6 +120,7 @@ func main() {
 	router := gin.Default()
 
 	handleFollowingFunc(followingHandler, router)
+	router := gin.Default()
 	handleUserFunc(userHandler, router)
 
 	http.ListenAndServe(port, cors.AllowAll().Handler(router))

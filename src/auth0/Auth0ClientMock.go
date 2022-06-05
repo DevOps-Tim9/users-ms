@@ -23,3 +23,11 @@ func (a *Auth0ClientMock) getAPIToken() (string, error) {
 func (a *Auth0ClientMock) setRole(s string, s2 string) error {
 	panic("implement me")
 }
+
+func (a *Auth0ClientMock) Update(email string, auth0ID string) error {
+	args := a.Called(email, auth0ID)
+	if args.Get(0) != nil {
+		return args.Get(0).(error)
+	}
+	return nil
+}
