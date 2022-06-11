@@ -22,6 +22,9 @@ type IUserService interface {
 	Register(*dto.RegistrationRequestDTO) (int, error)
 	GetByEmail(string) (*dto.UserResponseDTO, error)
 	Update(*dto.UserUpdateDTO) (*dto.UserResponseDTO, error)
+	BlockUser(int, string) error
+	UnblockUser(int, string) error
+	GetBlockedUsers(string) []dto.BlockedUserDTO
 }
 
 func NewUserService(userRepository repository.IUserRepository, auth0Client auth0.Auth0Client) IUserService {
@@ -108,4 +111,43 @@ func (service *UserService) Update(userToUpdate *dto.UserUpdateDTO) (*dto.UserRe
 	}
 
 	return userDTO, nil
+}
+
+func (service *UserService) BlockUser(blockingID int, userAuth0ID string) error {
+	blockedUserEntity, err := service.UserRepo.GetByID(blockingID)
+	if err != nil {
+		return err
+	}
+
+	userEntity, _ := service.UserRepo.GetByAuth0ID(userAuth0ID)
+
+	userEntity.Blocked = append(userEntity.Blocked, *blockedUserEntity)
+
+	service.UserRepo.Update(userEntity)
+
+	return nil
+}
+
+func (service *UserService) UnblockUser(blockingID int, userAuth0ID string) error {
+	_, err := service.UserRepo.GetByID(blockingID)
+	if err != nil {
+		return err
+	}
+
+	userEntity, _ := service.UserRepo.GetByAuth0ID(userAuth0ID)
+
+	service.UserRepo.UnblockUser(blockingID, userEntity.ID)
+
+	return nil
+}
+
+func (service *UserService) GetBlockedUsers(userAuth0ID string) []dto.BlockedUserDTO {
+	userEntity, _ := service.UserRepo.GetByAuth0ID(userAuth0ID)
+	blockedUsers := service.UserRepo.GetBlockedUsers(userEntity.ID)
+
+	res := make([]dto.BlockedUserDTO, len(blockedUsers))
+	for i := 0; i < len(blockedUsers); i++ {
+		res[i] = *mapper.UserToBlockedUserDTO(&blockedUsers[i])
+	}
+	return res
 }

@@ -46,3 +46,27 @@ func (u *UserRepositoryMock) GetByID(id int) (*model.User, error) {
 	}
 	return nil, args.Get(1).(error)
 }
+
+func (u *UserRepositoryMock) GetByAuth0ID(id string) (*model.User, error) {
+	args := u.Called(id)
+	if args.Get(1) == nil {
+		return args.Get(0).(*model.User), nil
+	}
+	return nil, args.Get(1).(error)
+}
+
+func (u *UserRepositoryMock) UnblockUser(blockingID int, userID int) error {
+	args := u.Called(blockingID, userID)
+	if args.Get(0) == nil {
+		return nil
+	}
+	return args.Get(0).(error)
+}
+
+func (u *UserRepositoryMock) GetBlockedUsers(userID int) []model.User {
+	args := u.Called(userID)
+	if args.Get(0) == nil {
+		return nil
+	}
+	return args.Get(0).([]model.User)
+}

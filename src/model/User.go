@@ -32,6 +32,7 @@ type User struct {
 	Interests      string  `json:"interests"`
 	Active         bool    `json:"active"`
 	Public         bool    `json:"public"`
+	Blocked        []User  `json:"blocked" gorm:"many2many:user_blocked;association_jointable_foreignkey:blocked_id;"`
 }
 
 func (u *User) Validate() error {
