@@ -61,3 +61,12 @@ func UserUpdateDTOToUser(userUpdateDTO *dto.UserUpdateDTO) *model.User {
 
 	return &user
 }
+
+func UserToBlockedUserDTO(userEntity *model.User) *dto.BlockedUserDTO {
+	var user dto.BlockedUserDTO
+
+	user.ID = userEntity.ID
+	user.Username = userEntity.Username
+
+	return &user
+}

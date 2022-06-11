@@ -16,7 +16,10 @@ type IUserRepository interface {
 	DeleteUser(int) error
 	Update(*model.User) (*dto.UserResponseDTO, error)
 	GetByID(int) (*model.User, error)
+	GetByAuth0ID(string) (*model.User, error)
 	GetByEmail(string) (*dto.UserResponseDTO, error)
+	UnblockUser(int, int) error
+	GetBlockedUsers(int) []model.User
 }
 
 func NewUserRepository(database *gorm.DB) IUserRepository {
@@ -70,6 +73,17 @@ func (repo *UserRepository) GetByID(id int) (*model.User, error) {
 	return &userEntity, nil
 }
 
+func (repo *UserRepository) GetByAuth0ID(id string) (*model.User, error) {
+	userEntity := model.User{
+		Auth0ID: id,
+	}
+	if err := repo.Database.Where("auth0_id = ?", id).First(&userEntity).Error; err != nil {
+		return nil, errors.New(fmt.Sprintf("User with auth0_ID %s not found", id))
+	}
+
+	return &userEntity, nil
+}
+
 func (repo *UserRepository) GetByEmail(email string) (*dto.UserResponseDTO, error) {
 	userEntity := model.User{
 		Email: email,
@@ -79,4 +93,19 @@ func (repo *UserRepository) GetByEmail(email string) (*dto.UserResponseDTO, erro
 	}
 
 	return mapper.UserToDTO(&userEntity), nil
+}
+
+func (repo *UserRepository) UnblockUser(blockingID int, userID int) error {
+	result := repo.Database.Exec(fmt.Sprintf("delete from user_blocked where user_id = %d and blocked_id = %d", userID, blockingID))
+	return result.Error
+}
+
+func (repo *UserRepository) GetBlockedUsers(userID int) []model.User {
+	userEntity := model.User{
+		ID: userID,
+	}
+	if err := repo.Database.Where("ID = ?", userID).Preload("Blocked").First(&userEntity).Error; err != nil {
+	}
+
+	return userEntity.Blocked
 }

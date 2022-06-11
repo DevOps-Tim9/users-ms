@@ -172,3 +172,12 @@ func (suite *UserServiceUnitTestsSuite) TestUserService_Update_UserUpdated() {
 	assert.Equal(suite.T(), user.Username, updatedUser.Username)
 	assert.Equal(suite.T(), nil, err)
 }
+
+func (suite *UserServiceUnitTestsSuite) TestUserService_GetBlockedUsers_NoBlockedUsersReturnsEmpty() {
+	suite.userRepositoryMock.On("GetByAuth0ID", "1").Return(&model.User{ID: 1}, nil).Once()
+	suite.userRepositoryMock.On("GetBlockedUsers", 1).Return([]model.User{}).Once()
+
+	blockedUsers := suite.service.GetBlockedUsers("1")
+
+	assert.Equal(suite.T(), 0, len(blockedUsers))
+}
