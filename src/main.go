@@ -69,6 +69,8 @@ func handleUserFunc(handler *handler.UserHandler, router *gin.Engine) {
 	router.PUT("/users/block-user", handler.BlockUser)
 	router.PUT("/users/unblock-user", handler.UnblockUser)
 	router.GET("/users/blocked-users", handler.GetBlockedUsers)
+	router.POST("/users/set-notifications", handler.SetNotifications)
+	router.GET("/users/get-notifications", handler.GetNotifications)
 }
 
 func initFollowerRepository(database *gorm.DB) *repository.FollowerRepository {

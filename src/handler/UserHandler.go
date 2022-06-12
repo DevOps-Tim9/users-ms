@@ -121,3 +121,30 @@ func (handler *UserHandler) GetBlockedUsers(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, blockedUsers)
 }
+
+func (handler *UserHandler) SetNotifications(ctx *gin.Context) {
+	var notificationSettings dto.NotificationsUpdateDTO
+	if err := ctx.ShouldBindJSON(&notificationSettings); err != nil {
+		ctx.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	claims, _ := extractClaims(ctx.Request.Header.Get("Authorization"))
+
+	err := handler.Service.SetNotifications(&notificationSettings, fmt.Sprint(claims["sub"]))
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, true)
+}
+
+func (handler *UserHandler) GetNotifications(ctx *gin.Context) {
+	claims, _ := extractClaims(ctx.Request.Header.Get("Authorization"))
+
+	notificationSettings := handler.Service.GetNotifications(fmt.Sprint(claims["sub"]))
+
+	ctx.JSON(http.StatusOK, notificationSettings)
+}
