@@ -46,6 +46,18 @@ func (handler *UserHandler) GetByEmail(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
+func (handler *UserHandler) GetByID(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, _ := getId(idStr)
+	user, err := handler.Service.GetByID(id)
+	fmt.Println(err)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, user)
+}
+
 func (handler *UserHandler) Update(ctx *gin.Context) {
 	var userToUpdate dto.UserUpdateDTO
 	if err := ctx.ShouldBindJSON(&userToUpdate); err != nil {

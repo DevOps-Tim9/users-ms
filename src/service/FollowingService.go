@@ -2,15 +2,21 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"user-ms/src/dto"
 	"user-ms/src/mapper"
 	"user-ms/src/model"
+	"user-ms/src/rabbitmq"
 	"user-ms/src/repository"
+
+	"github.com/streadway/amqp"
 )
 
 type FollowingService struct {
 	FollowerRepository         repository.IFollowerRepository
 	FollowingRequestRepository repository.IFollowingRequestRepository
+	UserRepository             repository.IUserRepository
+	RabbitMQChannel            *amqp.Channel
 }
 
 type IFollowingService interface {
@@ -19,10 +25,12 @@ type IFollowingService interface {
 	CreateFollower(*dto.FollowingRequestDTO) (int, error)
 }
 
-func NewFollowingService(followerRepository repository.IFollowerRepository, followingRequestRepository repository.IFollowingRequestRepository) IFollowingService {
+func NewFollowingService(followerRepository repository.IFollowerRepository, followingRequestRepository repository.IFollowingRequestRepository, userRepository repository.IUserRepository, channel *amqp.Channel) IFollowingService {
 	return &FollowingService{
 		followerRepository,
 		followingRequestRepository,
+		userRepository,
+		channel,
 	}
 }
 
@@ -31,6 +39,15 @@ func (service *FollowingService) CreateRequest(request *dto.FollowingRequestDTO)
 	if err != nil {
 		return -1, errors.New("can't create the request")
 	}
+
+	follower, _ := service.UserRepository.GetByID(request.FollowerId)
+	following, _ := service.UserRepository.GetByID(request.FollowingId)
+
+	followType := dto.Follow
+	notification := dto.NotificationDTO{Message: fmt.Sprintf("%s requested to follow you.", follower.Username), UserAuth0ID: following.Auth0ID, NotificationType: &followType}
+
+	rabbitmq.AddNotification(&notification, service.RabbitMQChannel)
+
 	return followingRequestId, nil
 }
 
@@ -61,6 +78,15 @@ func (service *FollowingService) CreateFollower(request *dto.FollowingRequestDTO
 	if err != nil {
 		return -1, errors.New("can't create the request")
 	}
+
+	follower, _ := service.UserRepository.GetByID(request.FollowerId)
+	following, _ := service.UserRepository.GetByID(request.FollowingId)
+
+	followType := dto.Follow
+	notification := dto.NotificationDTO{Message: fmt.Sprintf("%s started following you.", follower.Username), UserAuth0ID: following.Auth0ID, NotificationType: &followType}
+
+	rabbitmq.AddNotification(&notification, service.RabbitMQChannel)
+
 	return followerId, nil
 }
 

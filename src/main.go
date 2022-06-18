@@ -2,33 +2,41 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"user-ms/src/auth0"
 	"user-ms/src/handler"
 	"user-ms/src/model"
+	"user-ms/src/rabbitmq"
 	"user-ms/src/repository"
 	"user-ms/src/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/joho/godotenv"
 	"github.com/rs/cors"
+	"github.com/streadway/amqp"
 )
 
 var db *gorm.DB
 var err error
 
-func initDB() *gorm.DB {
-	user := os.Getenv("DB_USER")
-	pass := os.Getenv("DB_PASSWORD")
-	port := os.Getenv("DB_PORT")
-	dbName := os.Getenv("DB")
+func initDB() (*gorm.DB, error) {
+	host := os.Getenv("DATABASE_DOMAIN")
+	user := os.Getenv("DATABASE_USERNAME")
+	password := os.Getenv("DATABASE_PASSWORD")
+	name := os.Getenv("DATABASE_SCHEMA")
+	port := os.Getenv("DATABASE_PORT")
 
-	connString := fmt.Sprintf("host=localhost port=%s user=%s dbname=%s sslmode=disable password=%s", port, user, dbName, pass)
-	db, err = gorm.Open("postgres", connString)
+	connectionString := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		host,
+		user,
+		password,
+		name,
+		port,
+	)
+	db, err = gorm.Open("postgres", connectionString)
 
 	if err != nil {
 		panic("failed to connect database")
@@ -37,7 +45,7 @@ func initDB() *gorm.DB {
 	db.AutoMigrate(model.User{})
 	db.AutoMigrate(model.FollowingRequest{})
 	db.AutoMigrate(model.Follower{})
-	return db
+	return db, err
 }
 
 func initUserRepo(database *gorm.DB) *repository.UserRepository {
@@ -71,6 +79,7 @@ func handleUserFunc(handler *handler.UserHandler, router *gin.Engine) {
 	router.GET("/users/blocked-users", handler.GetBlockedUsers)
 	router.POST("/users/set-notifications", handler.SetNotifications)
 	router.GET("/users/get-notifications", handler.GetNotifications)
+	router.GET("/users/:id", handler.GetByID)
 }
 
 func initFollowerRepository(database *gorm.DB) *repository.FollowerRepository {
@@ -81,8 +90,8 @@ func initFollowingRequestRepository(database *gorm.DB) *repository.FollowingRequ
 	return &repository.FollowingRequestRepository{Database: database}
 }
 
-func initFollowingService(followerRepository *repository.FollowerRepository, followingRequestRepository *repository.FollowingRequestRepository) *service.FollowingService {
-	return &service.FollowingService{FollowerRepository: followerRepository, FollowingRequestRepository: followingRequestRepository}
+func initFollowingService(followerRepository *repository.FollowerRepository, followingRequestRepository *repository.FollowingRequestRepository, userRepository *repository.UserRepository, channel *amqp.Channel) *service.FollowingService {
+	return &service.FollowingService{FollowerRepository: followerRepository, FollowingRequestRepository: followingRequestRepository, UserRepository: userRepository, RabbitMQChannel: channel}
 }
 
 func initFollowingHandler(service *service.FollowingService) *handler.FollowingHandler {
@@ -101,16 +110,19 @@ func handleFollowingFunc(handler *handler.FollowingHandler, router *gin.Engine) 
 }
 
 func main() {
+	database, _ := initDB()
 
-	err := godotenv.Load(".env")
+	amqpServerURL := os.Getenv("AMQP_SERVER_URL")
 
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	rabbit := rabbitmq.RMQProducer{
+		ConnectionString: amqpServerURL,
 	}
 
-	database := initDB()
+	channel, _ := rabbit.StartRabbitMQ()
 
-	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
+	defer channel.Close()
+
+	port := fmt.Sprintf(":%s", os.Getenv("SERVER_PORT"))
 
 	userRepo := initUserRepo(database)
 	auth0Client := initAuth0Client()
@@ -119,7 +131,7 @@ func main() {
 
 	followingReqRepo := initFollowingRequestRepository(database)
 	followerRepo := initFollowerRepository(database)
-	followingService := initFollowingService(followerRepo, followingReqRepo)
+	followingService := initFollowingService(followerRepo, followingReqRepo, userRepo, channel)
 	followingHandler := initFollowingHandler(followingService)
 
 	router := gin.Default()

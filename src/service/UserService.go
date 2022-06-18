@@ -86,6 +86,12 @@ func (service *UserService) GetByEmail(email string) (*dto.UserResponseDTO, erro
 	return service.UserRepo.GetByEmail(email)
 }
 
+func (service *UserService) GetByID(id int) (*dto.UserResponseDTO, error) {
+	user, err := service.UserRepo.GetByID(id)
+	userResponse := *mapper.UserToDTO(user)
+	return &userResponse, err
+}
+
 func (service *UserService) Update(userToUpdate *dto.UserUpdateDTO) (*dto.UserResponseDTO, error) {
 	userEntity, errr := service.UserRepo.GetByID(userToUpdate.ID)
 	if errr != nil {
