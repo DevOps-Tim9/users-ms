@@ -70,3 +70,6 @@ func (u *UserRepositoryMock) GetBlockedUsers(userID int) []model.User {
 	}
 	return args.Get(0).([]model.User)
 }
+
+func (u *UserRepositoryMock) CreateAdmin([]model.User) {
+}
