@@ -109,6 +109,52 @@ func handleFollowingFunc(handler *handler.FollowingHandler, router *gin.Engine) 
 	router.DELETE("user/:id/removeFollower/:followingId+", handler.RemoveFollowing)
 }
 
+func addPredefinedAdmins(repo *repository.UserRepository) {
+	gender := model.Male
+	admin1 := model.User{
+		Username:    "admin",
+		FirstName:   "Petar",
+		LastName:    "Petrovic",
+		DateOfBirth: 315529200000,
+		Email:       "admin@dislinkt.com",
+		PhoneNumber: "060123456",
+		Gender:      &gender,
+		Password:    "$2a$10$GNysTh1mfPQbnNUHQM.iCe5cLIejAWU.6A1TTPDUOa/3.aUvlyG3a",
+		Auth0ID:     "auth0|62af383e504e5680df88c742",
+	}
+
+	admin2 := model.User{
+		Username:    "admin2",
+		FirstName:   "Laza",
+		LastName:    "Lazic",
+		DateOfBirth: 315529200000,
+		Email:       "admin2@dislinkt.com",
+		PhoneNumber: "060123457",
+		Gender:      &gender,
+		Password:    "$2a$10$GNysTh1mfPQbnNUHQM.iCe5cLIejAWU.6A1TTPDUOa/3.aUvlyG3a",
+		Auth0ID:     "auth0|62af385cb690199c1c89faab",
+	}
+
+	admin3 := model.User{
+		Username:    "admin3",
+		FirstName:   "Mita",
+		LastName:    "Mitic",
+		DateOfBirth: 315529200000,
+		Email:       "admin3@dislinkt.com",
+		PhoneNumber: "060123458",
+		Gender:      &gender,
+		Password:    "$2a$10$GNysTh1mfPQbnNUHQM.iCe5cLIejAWU.6A1TTPDUOa/3.aUvlyG3a",
+		Auth0ID:     "auth0|62af387270e7f4c2c978fbc4",
+	}
+	admins := []model.User{}
+	admins = append(admins, admin1)
+	admins = append(admins, admin2)
+	admins = append(admins, admin3)
+
+	repo.CreateAdmin(admins)
+
+}
+
 func main() {
 	database, _ := initDB()
 
@@ -138,6 +184,8 @@ func main() {
 
 	handleFollowingFunc(followingHandler, router)
 	handleUserFunc(userHandler, router)
+
+	addPredefinedAdmins(userRepo)
 
 	http.ListenAndServe(port, cors.AllowAll().Handler(router))
 }

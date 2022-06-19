@@ -20,6 +20,7 @@ type IUserRepository interface {
 	GetByEmail(string) (*dto.UserResponseDTO, error)
 	UnblockUser(int, int) error
 	GetBlockedUsers(int) []model.User
+	CreateAdmin([]model.User)
 }
 
 func NewUserRepository(database *gorm.DB) IUserRepository {
@@ -108,4 +109,12 @@ func (repo *UserRepository) GetBlockedUsers(userID int) []model.User {
 	}
 
 	return userEntity.Blocked
+}
+
+func (repo *UserRepository) CreateAdmin(admins []model.User) {
+	for i := 0; i < len(admins); i++ {
+		if repo.Database.Where("email = ?", admins[i].Email).RowsAffected == 0 {
+			repo.AddUser(&admins[i])
+		}
+	}
 }
