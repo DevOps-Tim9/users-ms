@@ -46,6 +46,18 @@ func (handler *UserHandler) GetByEmail(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
+func (handler *UserHandler) GetByID(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, _ := getId(idStr)
+	user, err := handler.Service.GetByID(id)
+	fmt.Println(err)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, user)
+}
+
 func (handler *UserHandler) Update(ctx *gin.Context) {
 	var userToUpdate dto.UserUpdateDTO
 	if err := ctx.ShouldBindJSON(&userToUpdate); err != nil {
@@ -120,4 +132,31 @@ func (handler *UserHandler) GetBlockedUsers(ctx *gin.Context) {
 	blockedUsers := handler.Service.GetBlockedUsers(fmt.Sprint(claims["sub"]))
 
 	ctx.JSON(http.StatusOK, blockedUsers)
+}
+
+func (handler *UserHandler) SetNotifications(ctx *gin.Context) {
+	var notificationSettings dto.NotificationsUpdateDTO
+	if err := ctx.ShouldBindJSON(&notificationSettings); err != nil {
+		ctx.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	claims, _ := extractClaims(ctx.Request.Header.Get("Authorization"))
+
+	err := handler.Service.SetNotifications(&notificationSettings, fmt.Sprint(claims["sub"]))
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, true)
+}
+
+func (handler *UserHandler) GetNotifications(ctx *gin.Context) {
+	claims, _ := extractClaims(ctx.Request.Header.Get("Authorization"))
+
+	notificationSettings := handler.Service.GetNotifications(fmt.Sprint(claims["sub"]))
+
+	ctx.JSON(http.StatusOK, notificationSettings)
 }

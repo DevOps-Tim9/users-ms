@@ -70,3 +70,14 @@ func UserToBlockedUserDTO(userEntity *model.User) *dto.BlockedUserDTO {
 
 	return &user
 }
+
+func UserToNotificationsDTO(userEntity *model.User) *dto.NotificationsUpdateDTO {
+	var notifications dto.NotificationsUpdateDTO
+
+	notifications.MessageNotifications = userEntity.MessageNotifications
+	notifications.FollowNotifications = userEntity.FollowNotifications
+	notifications.CommentNotifications = userEntity.CommentNotifications
+	notifications.LikeNotifications = userEntity.LikeNotifications
+
+	return &notifications
+}

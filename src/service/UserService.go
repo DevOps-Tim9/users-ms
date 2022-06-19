@@ -25,6 +25,8 @@ type IUserService interface {
 	BlockUser(int, string) error
 	UnblockUser(int, string) error
 	GetBlockedUsers(string) []dto.BlockedUserDTO
+	SetNotifications(*dto.NotificationsUpdateDTO, string) error
+	GetNotifications(string) *dto.NotificationsUpdateDTO
 }
 
 func NewUserService(userRepository repository.IUserRepository, auth0Client auth0.Auth0Client) IUserService {
@@ -82,6 +84,12 @@ func HashPassword(password string) (string, error) {
 
 func (service *UserService) GetByEmail(email string) (*dto.UserResponseDTO, error) {
 	return service.UserRepo.GetByEmail(email)
+}
+
+func (service *UserService) GetByID(id int) (*dto.UserResponseDTO, error) {
+	user, err := service.UserRepo.GetByID(id)
+	userResponse := *mapper.UserToDTO(user)
+	return &userResponse, err
 }
 
 func (service *UserService) Update(userToUpdate *dto.UserUpdateDTO) (*dto.UserResponseDTO, error) {
@@ -150,4 +158,29 @@ func (service *UserService) GetBlockedUsers(userAuth0ID string) []dto.BlockedUse
 		res[i] = *mapper.UserToBlockedUserDTO(&blockedUsers[i])
 	}
 	return res
+}
+
+func (service *UserService) SetNotifications(notificationSettings *dto.NotificationsUpdateDTO, userAuth0ID string) error {
+	userEntity, _ := service.UserRepo.GetByAuth0ID(userAuth0ID)
+
+	userEntity.MessageNotifications = notificationSettings.MessageNotifications
+	userEntity.FollowNotifications = notificationSettings.FollowNotifications
+	userEntity.CommentNotifications = notificationSettings.CommentNotifications
+	userEntity.LikeNotifications = notificationSettings.LikeNotifications
+
+	_, err := service.UserRepo.Update(userEntity)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	return nil
+}
+
+func (service *UserService) GetNotifications(userAuth0ID string) *dto.NotificationsUpdateDTO {
+	userEntity, _ := service.UserRepo.GetByAuth0ID(userAuth0ID)
+
+	notificationSettings := mapper.UserToNotificationsDTO(userEntity)
+
+	return notificationSettings
 }
