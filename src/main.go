@@ -223,6 +223,6 @@ func main() {
 
 	addPredefinedAdmins(userRepo)
 
-	logger.Info("Starting server on port %s", port)
+	logger.Info(fmt.Sprintf("Starting server on port %s", port))
 	http.ListenAndServe(port, cors.AllowAll().Handler(router))
 }
