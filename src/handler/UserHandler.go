@@ -10,6 +10,7 @@ import (
 	"user-ms/src/service"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/opentracing/opentracing-go"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +20,9 @@ type UserHandler struct {
 }
 
 func (handler *UserHandler) Register(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "POST /register")
+	defer span.Finish()
+
 	var userToRegister dto.RegistrationRequestDTO
 	if err := ctx.ShouldBindJSON(&userToRegister); err != nil {
 		ctx.JSON(http.StatusBadRequest, err)
@@ -36,6 +40,9 @@ func (handler *UserHandler) Register(ctx *gin.Context) {
 }
 
 func (handler *UserHandler) GetByEmail(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "GET /users")
+	defer span.Finish()
+
 	email := ctx.Query("email")
 	user, err := handler.Service.GetByEmail(email)
 	fmt.Println(err)
@@ -47,6 +54,9 @@ func (handler *UserHandler) GetByEmail(ctx *gin.Context) {
 }
 
 func (handler *UserHandler) GetByID(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "GET /users/:id")
+	defer span.Finish()
+
 	idStr := ctx.Param("id")
 	id, _ := getId(idStr)
 	user, err := handler.Service.GetByID(id)
@@ -59,6 +69,9 @@ func (handler *UserHandler) GetByID(ctx *gin.Context) {
 }
 
 func (handler *UserHandler) Update(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "PUT /users")
+	defer span.Finish()
+
 	var userToUpdate dto.UserUpdateDTO
 	if err := ctx.ShouldBindJSON(&userToUpdate); err != nil {
 		ctx.JSON(http.StatusBadRequest, err)
@@ -95,6 +108,9 @@ func getId(idParam string) (int, error) {
 }
 
 func (handler *UserHandler) BlockUser(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "PUT /users/block-user")
+	defer span.Finish()
+
 	blockingID := ctx.Query("id")
 
 	claims, _ := extractClaims(ctx.Request.Header.Get("Authorization"))
@@ -111,6 +127,9 @@ func (handler *UserHandler) BlockUser(ctx *gin.Context) {
 }
 
 func (handler *UserHandler) UnblockUser(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "PUT /users/unblock-user")
+	defer span.Finish()
+
 	blockingID := ctx.Query("id")
 
 	claims, _ := extractClaims(ctx.Request.Header.Get("Authorization"))
@@ -127,6 +146,9 @@ func (handler *UserHandler) UnblockUser(ctx *gin.Context) {
 }
 
 func (handler *UserHandler) GetBlockedUsers(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "GET /users/blocked-users")
+	defer span.Finish()
+
 	claims, _ := extractClaims(ctx.Request.Header.Get("Authorization"))
 
 	blockedUsers := handler.Service.GetBlockedUsers(fmt.Sprint(claims["sub"]))
@@ -135,6 +157,9 @@ func (handler *UserHandler) GetBlockedUsers(ctx *gin.Context) {
 }
 
 func (handler *UserHandler) SetNotifications(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "POST /users/set-notifications")
+	defer span.Finish()
+
 	var notificationSettings dto.NotificationsUpdateDTO
 	if err := ctx.ShouldBindJSON(&notificationSettings); err != nil {
 		ctx.JSON(http.StatusBadRequest, err)
@@ -154,6 +179,9 @@ func (handler *UserHandler) SetNotifications(ctx *gin.Context) {
 }
 
 func (handler *UserHandler) GetNotifications(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "GET /users/get-notifications")
+	defer span.Finish()
+
 	claims, _ := extractClaims(ctx.Request.Header.Get("Authorization"))
 
 	notificationSettings := handler.Service.GetNotifications(fmt.Sprint(claims["sub"]))

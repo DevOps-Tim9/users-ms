@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"user-ms/src/auth0"
@@ -14,8 +15,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/opentracing/opentracing-go"
 	"github.com/rs/cors"
 	"github.com/streadway/amqp"
+	"github.com/uber/jaeger-client-go"
+	"github.com/uber/jaeger-client-go/config"
 )
 
 var db *gorm.DB
@@ -155,6 +159,23 @@ func addPredefinedAdmins(repo *repository.UserRepository) {
 
 }
 
+func InitJaeger() (opentracing.Tracer, io.Closer, error) {
+	cfg := config.Configuration{
+		ServiceName: "users-ms",
+		Sampler: &config.SamplerConfig{
+			Type:  "const",
+			Param: 1,
+		},
+		Reporter: &config.ReporterConfig{
+			LogSpans:           true,
+			LocalAgentHostPort: "jaeger:6831",
+		},
+	}
+
+	tracer, closer, err := cfg.NewTracer(config.Logger(jaeger.StdLogger))
+	return tracer, closer, err
+}
+
 func main() {
 	database, _ := initDB()
 
@@ -169,6 +190,14 @@ func main() {
 	defer channel.Close()
 
 	port := fmt.Sprintf(":%s", os.Getenv("SERVER_PORT"))
+
+	tracer, trCloser, err := InitJaeger()
+	if err != nil {
+		fmt.Printf("error init jaeger %v", err)
+	} else {
+		defer trCloser.Close()
+		opentracing.SetGlobalTracer(tracer)
+	}
 
 	userRepo := initUserRepo(database)
 	auth0Client := initAuth0Client()
