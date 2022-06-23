@@ -9,6 +9,7 @@ import (
 	"user-ms/src/mapper"
 	"user-ms/src/model"
 	"user-ms/src/repository"
+	"user-ms/src/utils"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -29,7 +30,7 @@ func TestUserServiceUnitTestsSuite(t *testing.T) {
 func (suite *UserServiceUnitTestsSuite) SetupSuite() {
 	suite.userRepositoryMock = new(repository.UserRepositoryMock)
 	suite.auth0ClientMock = new(auth0.Auth0ClientMock)
-	suite.service = NewUserService(suite.userRepositoryMock, suite.auth0ClientMock)
+	suite.service = NewUserService(suite.userRepositoryMock, suite.auth0ClientMock, utils.Logger())
 }
 
 func (suite *UserServiceUnitTestsSuite) TestNewUserService() {

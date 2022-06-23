@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 	"user-ms/src/auth0"
@@ -62,29 +63,29 @@ func (service *UserService) Register(userToRegister *dto.RegistrationRequestDTO)
 		return -1, err
 	}
 
-	service.Logger.Info("Adding user to database with username %s", user.Username)
+	service.Logger.Info(fmt.Sprintf("Adding user to database with username %s", user.Username))
 	addedUserID, err := service.UserRepo.AddUser(user)
 	if err != nil {
 		service.Logger.Debug(err.Error())
 		return -1, err
 	}
 
-	service.Logger.Info("Calling Auth0 to add user with username %s", user.Username)
+	service.Logger.Info(fmt.Sprintf("Calling Auth0 to add user with username %s", user.Username))
 	if auth0ID, err := service.Auth0Client.Register(userToRegister.Email, userToRegister.Password); err != nil {
 		service.Logger.Debug(err.Error())
-		service.Logger.Info("Deleting user with username %s", user.Username)
+		service.Logger.Info(fmt.Sprintf("Deleting user with username %s", user.Username))
 		if err = service.UserRepo.DeleteUser(addedUserID); err != nil {
 			service.Logger.Debug(err.Error())
 			return -1, err
 		}
 		return -1, err
 	} else {
-		service.Logger.Info("Updating user with username %s", user.Username)
+		service.Logger.Info(fmt.Sprintf("Updating user with username %s", user.Username))
 		user.Auth0ID = auth0ID
 		service.UserRepo.Update(user)
 	}
 
-	service.Logger.Info("Succesfully registered user with id %s", addedUserID)
+	service.Logger.Info(fmt.Sprintf("Succesfully registered user with id %d", addedUserID))
 	return addedUserID, nil
 }
 
@@ -99,14 +100,14 @@ func (service *UserService) GetByEmail(email string) (*dto.UserResponseDTO, erro
 }
 
 func (service *UserService) GetByID(id int) (*dto.UserResponseDTO, error) {
-	service.Logger.Info("Getting user by id %d", id)
+	service.Logger.Info(fmt.Sprintf("Getting user by id %d", id))
 	user, err := service.UserRepo.GetByID(id)
 	userResponse := *mapper.UserToDTO(user)
 	return &userResponse, err
 }
 
 func (service *UserService) Update(userToUpdate *dto.UserUpdateDTO) (*dto.UserResponseDTO, error) {
-	service.Logger.Info("Updating user with id %d", userToUpdate.ID)
+	service.Logger.Info(fmt.Sprintf("Updating user with id %d", userToUpdate.ID))
 	userEntity, errr := service.UserRepo.GetByID(userToUpdate.ID)
 	if errr != nil {
 		service.Logger.Debug(errr.Error())
@@ -129,18 +130,18 @@ func (service *UserService) Update(userToUpdate *dto.UserUpdateDTO) (*dto.UserRe
 		return nil, err
 	}
 
-	service.Logger.Info("Updating user with id %d in Auth0", userToUpdate.ID)
+	service.Logger.Info(fmt.Sprintf("Updating user with id %d in Auth0", userToUpdate.ID))
 	if err := service.Auth0Client.Update(user.Email, user.Auth0ID); err != nil {
 		service.Logger.Debug(err.Error())
 		return nil, err
 	}
 
-	service.Logger.Info("Succesfully updated user with %s", userToUpdate.ID)
+	service.Logger.Info(fmt.Sprintf("Succesfully updated user with %d", userToUpdate.ID))
 	return userDTO, nil
 }
 
 func (service *UserService) BlockUser(blockingID int, userAuth0ID string) error {
-	service.Logger.Info("Blocking user with id %d", blockingID)
+	service.Logger.Info(fmt.Sprintf("Blocking user with id %d", blockingID))
 	blockedUserEntity, err := service.UserRepo.GetByID(blockingID)
 	if err != nil {
 		return err
@@ -152,12 +153,12 @@ func (service *UserService) BlockUser(blockingID int, userAuth0ID string) error 
 
 	service.UserRepo.Update(userEntity)
 
-	service.Logger.Info("Succesfully blocked user with %s", blockingID)
+	service.Logger.Info(fmt.Sprintf("Succesfully blocked user with %d", blockingID))
 	return nil
 }
 
 func (service *UserService) UnblockUser(blockingID int, userAuth0ID string) error {
-	service.Logger.Info("Unblocking user with id %d", blockingID)
+	service.Logger.Info(fmt.Sprintf("Unblocking user with id %d", blockingID))
 	_, err := service.UserRepo.GetByID(blockingID)
 	if err != nil {
 		service.Logger.Debug(err.Error())
@@ -168,12 +169,12 @@ func (service *UserService) UnblockUser(blockingID int, userAuth0ID string) erro
 
 	service.UserRepo.UnblockUser(blockingID, userEntity.ID)
 
-	service.Logger.Info("Succesfully unblocked user with %s", blockingID)
+	service.Logger.Info(fmt.Sprintf("Succesfully unblocked user with %d", blockingID))
 	return nil
 }
 
 func (service *UserService) GetBlockedUsers(userAuth0ID string) []dto.BlockedUserDTO {
-	service.Logger.Info("Getting blocked users for user %s", userAuth0ID)
+	service.Logger.Info(fmt.Sprintf("Getting blocked users for user %s", userAuth0ID))
 	userEntity, _ := service.UserRepo.GetByAuth0ID(userAuth0ID)
 	blockedUsers := service.UserRepo.GetBlockedUsers(userEntity.ID)
 
@@ -185,7 +186,7 @@ func (service *UserService) GetBlockedUsers(userAuth0ID string) []dto.BlockedUse
 }
 
 func (service *UserService) SetNotifications(notificationSettings *dto.NotificationsUpdateDTO, userAuth0ID string) error {
-	service.Logger.Info("Setting notifications for user with %s", userAuth0ID)
+	service.Logger.Info(fmt.Sprintf("Setting notifications for user with %s", userAuth0ID))
 	userEntity, _ := service.UserRepo.GetByAuth0ID(userAuth0ID)
 
 	userEntity.MessageNotifications = notificationSettings.MessageNotifications
@@ -199,12 +200,12 @@ func (service *UserService) SetNotifications(notificationSettings *dto.Notificat
 		return err
 	}
 
-	service.Logger.Info("Succesfully set notification settings for user %s", userAuth0ID)
+	service.Logger.Info(fmt.Sprintf("Succesfully set notification settings for user %s", userAuth0ID))
 	return nil
 }
 
 func (service *UserService) GetNotifications(userAuth0ID string) *dto.NotificationsUpdateDTO {
-	service.Logger.Info("Getting notification settings for user %s", userAuth0ID)
+	service.Logger.Info(fmt.Sprintf("Getting notification settings for user %s", userAuth0ID))
 	userEntity, _ := service.UserRepo.GetByAuth0ID(userAuth0ID)
 
 	notificationSettings := mapper.UserToNotificationsDTO(userEntity)

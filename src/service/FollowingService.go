@@ -58,7 +58,7 @@ func (service *FollowingService) CreateRequest(request *dto.FollowingRequestDTO)
 }
 
 func (service *FollowingService) UpdateRequest(reqId int, request *dto.FollowingRequestDTO) (*dto.FollowingRequestDTO, error) {
-	service.Logger.Info("Updating following request with id %d", reqId)
+	service.Logger.Info(fmt.Sprintf("Updating following request with id %d", reqId))
 	followingRequest, err := service.FollowingRequestRepository.UpdateFollowingRequest(reqId, mapper.FollowingDTOToRequestFollower(request))
 	if err != nil {
 		service.Logger.Debug(err.Error())
@@ -66,7 +66,7 @@ func (service *FollowingService) UpdateRequest(reqId int, request *dto.Following
 	}
 	status := model.RequestStatus(request.RequestStatus)
 	if model.ACCEPTED == status {
-		service.Logger.Info("Accepting following request with id %d", reqId)
+		service.Logger.Info(fmt.Sprintf("Accepting following request with id %d", reqId))
 		_, _ = service.FollowerRepository.AddFollower(mapper.FollowingDTOToFollower(request))
 	}
 	return mapper.RequestToFollowingDTO(followingRequest), nil
@@ -79,7 +79,7 @@ func (service *FollowingService) GetRequests() ([]model.FollowingRequest, error)
 }
 
 func (service *FollowingService) GetRequestsByFollowingID(id int) ([]model.FollowingRequest, error) {
-	service.Logger.Info("Getting following requests for id %d", id)
+	service.Logger.Info(fmt.Sprintf("Getting following requests for id %d", id))
 	requests := service.FollowingRequestRepository.GetRequestsByFollowingID(id)
 	return requests, nil
 }
@@ -105,19 +105,19 @@ func (service *FollowingService) CreateFollower(request *dto.FollowingRequestDTO
 }
 
 func (service *FollowingService) GetFollowers(id int) ([]model.Follower, error) {
-	service.Logger.Info("Getting followers for user with id %d", id)
+	service.Logger.Info(fmt.Sprintf("Getting followers for user with id %d", id))
 	followers := service.FollowerRepository.GetFollowers(id)
 	return followers, nil
 }
 
 func (service *FollowingService) GetFollowing(id int) ([]model.Follower, error) {
-	service.Logger.Info("Getting following for user with id %d", id)
+	service.Logger.Info(fmt.Sprintf("Getting following for user with id %d", id))
 	following := service.FollowerRepository.GetFollowing(id)
 	return following, nil
 }
 
 func (service *FollowingService) RemoveFollowing(id int, followingId int) error {
-	service.Logger.Info("User with id %d unfollowed user with id %d", id, followingId)
+	service.Logger.Info(fmt.Sprintf("User with id %d unfollowed user with id %d", id, followingId))
 	service.FollowerRepository.RemoveFollowing(id, followingId)
 	return nil
 }
