@@ -5,6 +5,7 @@ import (
 	"user-ms/src/dto"
 	"user-ms/src/model"
 	"user-ms/src/repository"
+	"user-ms/src/utils"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -27,7 +28,7 @@ func (suite *FollowingTestsSuite) SetupSuite() {
 	suite.followerRepositoryMock = new(repository.FollowerRepositoryMock)
 	suite.followingRequestRepositoryMock = new(repository.FollowingRequestRepositoryMock)
 	suite.userRepositoryMock = new(repository.UserRepositoryMock)
-	suite.service = NewFollowingService(suite.followerRepositoryMock, suite.followingRequestRepositoryMock, suite.userRepositoryMock, nil)
+	suite.service = NewFollowingService(suite.followerRepositoryMock, suite.followingRequestRepositoryMock, suite.userRepositoryMock, nil, utils.Logger())
 }
 
 func (suite *FollowingTestsSuite) TestNewFollowingTestsService() {

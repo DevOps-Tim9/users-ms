@@ -9,10 +9,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"
+	"github.com/sirupsen/logrus"
 )
 
 type FollowingHandler struct {
 	Service *service.FollowingService
+	Logger  *logrus.Entry
 }
 
 func (handler *FollowingHandler) UpdateRequest(ctx *gin.Context) {
@@ -21,7 +23,7 @@ func (handler *FollowingHandler) UpdateRequest(ctx *gin.Context) {
 
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		fmt.Println(err)
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
@@ -29,13 +31,14 @@ func (handler *FollowingHandler) UpdateRequest(ctx *gin.Context) {
 	fmt.Println(id)
 	var requestDTO dto.FollowingRequestDTO
 	if err := ctx.ShouldBindJSON(&requestDTO); err != nil {
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
 
 	requestId, err := handler.Service.UpdateRequest(id, &requestDTO)
 	if err != nil {
-		fmt.Println(err)
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
@@ -49,13 +52,14 @@ func (handler *FollowingHandler) CreateRequest(ctx *gin.Context) {
 
 	var requestDTO dto.FollowingRequestDTO
 	if err := ctx.ShouldBindJSON(&requestDTO); err != nil {
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
 
 	requestId, err := handler.Service.CreateRequest(&requestDTO)
 	if err != nil {
-		fmt.Println(err)
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
@@ -69,7 +73,7 @@ func (handler *FollowingHandler) GetRequest(ctx *gin.Context) {
 
 	requests, err := handler.Service.GetRequests()
 	if err != nil {
-		fmt.Println(err)
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
@@ -84,7 +88,7 @@ func (handler *FollowingHandler) GetRequestsByFollowingID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	requests, err := handler.Service.GetRequestsByFollowingID(id)
 	if err != nil {
-		fmt.Println(err)
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
@@ -98,13 +102,14 @@ func (handler *FollowingHandler) CreatFollower(ctx *gin.Context) {
 
 	var requestDTO dto.FollowingRequestDTO
 	if err := ctx.ShouldBindJSON(&requestDTO); err != nil {
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
 
 	requestId, err := handler.Service.CreateFollower(&requestDTO)
 	if err != nil {
-		fmt.Println(err)
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
@@ -119,7 +124,7 @@ func (handler *FollowingHandler) GetFollowers(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	requests, err := handler.Service.GetFollowers(id)
 	if err != nil {
-		fmt.Println(err)
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
@@ -134,7 +139,7 @@ func (handler *FollowingHandler) GetFollowing(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	requests, err := handler.Service.GetFollowing(id)
 	if err != nil {
-		fmt.Println(err)
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
@@ -150,7 +155,7 @@ func (handler *FollowingHandler) RemoveFollowing(ctx *gin.Context) {
 	followingId, err := strconv.Atoi(ctx.Param("followingId"))
 	err = handler.Service.RemoveFollowing(id, followingId)
 	if err != nil {
-		fmt.Println(err)
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}

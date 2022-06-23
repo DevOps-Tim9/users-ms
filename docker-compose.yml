@@ -49,10 +49,26 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    volumes:
+      - logs:/root/logs
+
+  promtail:
+    image: grafana/promtail:latest
+    networks:
+      - users-ms
+      - network-for-ms
+    volumes:
+      - "./promtail:/etc/promtail"
+      - "/var/log:/var/log"
+      - logs:/var/logs
+    command: -config.file=/etc/promtail/promtail.yml
+    restart: always
 
 volumes:
   data:
     name: users-ms-database
+  logs:
+    name: users-logs
 
 networks:
   users-ms:
