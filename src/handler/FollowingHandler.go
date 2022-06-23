@@ -8,6 +8,7 @@ import (
 	"user-ms/src/service"
 
 	"github.com/gin-gonic/gin"
+	"github.com/opentracing/opentracing-go"
 )
 
 type FollowingHandler struct {
@@ -15,6 +16,9 @@ type FollowingHandler struct {
 }
 
 func (handler *FollowingHandler) UpdateRequest(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "PUT /requests/:id")
+	defer span.Finish()
+
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		fmt.Println(err)
@@ -40,6 +44,9 @@ func (handler *FollowingHandler) UpdateRequest(ctx *gin.Context) {
 }
 
 func (handler *FollowingHandler) CreateRequest(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "POST /requests")
+	defer span.Finish()
+
 	var requestDTO dto.FollowingRequestDTO
 	if err := ctx.ShouldBindJSON(&requestDTO); err != nil {
 		ctx.JSON(http.StatusBadRequest, err)
@@ -57,6 +64,9 @@ func (handler *FollowingHandler) CreateRequest(ctx *gin.Context) {
 }
 
 func (handler *FollowingHandler) GetRequest(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "GET /requests")
+	defer span.Finish()
+
 	requests, err := handler.Service.GetRequests()
 	if err != nil {
 		fmt.Println(err)
@@ -68,6 +78,9 @@ func (handler *FollowingHandler) GetRequest(ctx *gin.Context) {
 }
 
 func (handler *FollowingHandler) GetRequestsByFollowingID(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "GET /requests/:id")
+	defer span.Finish()
+
 	id, err := strconv.Atoi(ctx.Param("id"))
 	requests, err := handler.Service.GetRequestsByFollowingID(id)
 	if err != nil {
@@ -80,6 +93,9 @@ func (handler *FollowingHandler) GetRequestsByFollowingID(ctx *gin.Context) {
 }
 
 func (handler *FollowingHandler) CreatFollower(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "POST /follower")
+	defer span.Finish()
+
 	var requestDTO dto.FollowingRequestDTO
 	if err := ctx.ShouldBindJSON(&requestDTO); err != nil {
 		ctx.JSON(http.StatusBadRequest, err)
@@ -97,6 +113,9 @@ func (handler *FollowingHandler) CreatFollower(ctx *gin.Context) {
 }
 
 func (handler *FollowingHandler) GetFollowers(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "GET /user/:id/followers")
+	defer span.Finish()
+
 	id, err := strconv.Atoi(ctx.Param("id"))
 	requests, err := handler.Service.GetFollowers(id)
 	if err != nil {
@@ -109,6 +128,9 @@ func (handler *FollowingHandler) GetFollowers(ctx *gin.Context) {
 }
 
 func (handler *FollowingHandler) GetFollowing(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "GET user/:id/following")
+	defer span.Finish()
+
 	id, err := strconv.Atoi(ctx.Param("id"))
 	requests, err := handler.Service.GetFollowing(id)
 	if err != nil {
@@ -121,6 +143,9 @@ func (handler *FollowingHandler) GetFollowing(ctx *gin.Context) {
 }
 
 func (handler *FollowingHandler) RemoveFollowing(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "DELETE /user/:id/removeFollower/:followingId+")
+	defer span.Finish()
+
 	id, err := strconv.Atoi(ctx.Param("id"))
 	followingId, err := strconv.Atoi(ctx.Param("followingId"))
 	err = handler.Service.RemoveFollowing(id, followingId)
