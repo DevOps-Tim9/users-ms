@@ -11,12 +11,14 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/opentracing/opentracing-go"
+	"github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
 	Service *service.UserService
+	Logger  *logrus.Entry
 }
 
 func (handler *UserHandler) Register(ctx *gin.Context) {
@@ -25,12 +27,14 @@ func (handler *UserHandler) Register(ctx *gin.Context) {
 
 	var userToRegister dto.RegistrationRequestDTO
 	if err := ctx.ShouldBindJSON(&userToRegister); err != nil {
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
 
 	userID, err := handler.Service.Register(&userToRegister)
 	if err != nil {
+		handler.Logger.Debug(err.Error())
 		fmt.Println(err)
 		ctx.JSON(http.StatusBadRequest, err)
 		return
@@ -47,6 +51,7 @@ func (handler *UserHandler) GetByEmail(ctx *gin.Context) {
 	user, err := handler.Service.GetByEmail(email)
 	fmt.Println(err)
 	if err != nil {
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusNotFound, err)
 		return
 	}
@@ -62,6 +67,7 @@ func (handler *UserHandler) GetByID(ctx *gin.Context) {
 	user, err := handler.Service.GetByID(id)
 	fmt.Println(err)
 	if err != nil {
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusNotFound, err)
 		return
 	}
@@ -74,13 +80,14 @@ func (handler *UserHandler) Update(ctx *gin.Context) {
 
 	var userToUpdate dto.UserUpdateDTO
 	if err := ctx.ShouldBindJSON(&userToUpdate); err != nil {
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
 
 	userDTO, err := handler.Service.Update(&userToUpdate)
 	if err != nil {
-		fmt.Println(err)
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
@@ -120,6 +127,7 @@ func (handler *UserHandler) BlockUser(ctx *gin.Context) {
 	err := handler.Service.BlockUser(id, fmt.Sprint(claims["sub"]))
 	fmt.Println(err)
 	if err != nil {
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusNotFound, err.Error())
 		return
 	}
@@ -139,6 +147,7 @@ func (handler *UserHandler) UnblockUser(ctx *gin.Context) {
 	err := handler.Service.UnblockUser(id, fmt.Sprint(claims["sub"]))
 	fmt.Println(err)
 	if err != nil {
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusNotFound, err.Error())
 		return
 	}
@@ -162,6 +171,7 @@ func (handler *UserHandler) SetNotifications(ctx *gin.Context) {
 
 	var notificationSettings dto.NotificationsUpdateDTO
 	if err := ctx.ShouldBindJSON(&notificationSettings); err != nil {
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
@@ -170,7 +180,7 @@ func (handler *UserHandler) SetNotifications(ctx *gin.Context) {
 
 	err := handler.Service.SetNotifications(&notificationSettings, fmt.Sprint(claims["sub"]))
 	if err != nil {
-		fmt.Println(err)
+		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}

@@ -50,6 +50,7 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rs/cors v1.8.2
+	github.com/sirupsen/logrus v1.8.1
 	github.com/soheilhy/cmux v0.1.5
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/objx v0.1.0 // indirect

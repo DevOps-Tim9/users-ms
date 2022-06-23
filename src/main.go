@@ -11,6 +11,7 @@ import (
 	"user-ms/src/rabbitmq"
 	"user-ms/src/repository"
 	"user-ms/src/service"
+	"user-ms/src/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -67,11 +68,11 @@ func initAuth0Client() *auth0.Auth0Client {
 }
 
 func initUserService(userRepo *repository.UserRepository, auth0Client *auth0.Auth0Client) *service.UserService {
-	return &service.UserService{UserRepo: userRepo, Auth0Client: *auth0Client}
+	return &service.UserService{UserRepo: userRepo, Auth0Client: *auth0Client, Logger: utils.Logger()}
 }
 
 func initUserHandler(service *service.UserService) *handler.UserHandler {
-	return &handler.UserHandler{Service: service}
+	return &handler.UserHandler{Service: service, Logger: utils.Logger()}
 }
 
 func handleUserFunc(handler *handler.UserHandler, router *gin.Engine) {
@@ -95,11 +96,11 @@ func initFollowingRequestRepository(database *gorm.DB) *repository.FollowingRequ
 }
 
 func initFollowingService(followerRepository *repository.FollowerRepository, followingRequestRepository *repository.FollowingRequestRepository, userRepository *repository.UserRepository, channel *amqp.Channel) *service.FollowingService {
-	return &service.FollowingService{FollowerRepository: followerRepository, FollowingRequestRepository: followingRequestRepository, UserRepository: userRepository, RabbitMQChannel: channel}
+	return &service.FollowingService{FollowerRepository: followerRepository, FollowingRequestRepository: followingRequestRepository, UserRepository: userRepository, RabbitMQChannel: channel, Logger: utils.Logger()}
 }
 
 func initFollowingHandler(service *service.FollowingService) *handler.FollowingHandler {
-	return &handler.FollowingHandler{Service: service}
+	return &handler.FollowingHandler{Service: service, Logger: utils.Logger()}
 }
 
 func handleFollowingFunc(handler *handler.FollowingHandler, router *gin.Engine) {
@@ -177,6 +178,9 @@ func InitJaeger() (opentracing.Tracer, io.Closer, error) {
 }
 
 func main() {
+	logger := utils.Logger()
+
+	logger.Info("Connecting with DB")
 	database, _ := initDB()
 
 	amqpServerURL := os.Getenv("AMQP_SERVER_URL")
@@ -185,14 +189,17 @@ func main() {
 		ConnectionString: amqpServerURL,
 	}
 
+	logger.Info("Connecting with RabbitMQ")
 	channel, _ := rabbit.StartRabbitMQ()
 
 	defer channel.Close()
 
 	port := fmt.Sprintf(":%s", os.Getenv("SERVER_PORT"))
 
+	logger.Info("Initializing Jaeger")
 	tracer, trCloser, err := InitJaeger()
 	if err != nil {
+		logger.Error(err.Error())
 		fmt.Printf("error init jaeger %v", err)
 	} else {
 		defer trCloser.Close()
@@ -216,5 +223,6 @@ func main() {
 
 	addPredefinedAdmins(userRepo)
 
+	logger.Info("Starting server on port %s", port)
 	http.ListenAndServe(port, cors.AllowAll().Handler(router))
 }
