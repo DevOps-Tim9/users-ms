@@ -161,27 +161,6 @@ func (suite *UserServiceIntegrationTestSuite) TestIntegrationUserService_Registe
 	assert.NotNil(suite.T(), err)
 }
 
-func (suite *UserServiceIntegrationTestSuite) TestIntegrationUserService_Register_Pass() {
-	gender := model.Female
-	userDto := dto.RegistrationRequestDTO{
-		Username:    "test-username",
-		FirstName:   "test",
-		LastName:    "test",
-		Password:    "testtest123",
-		Email:       "testemailemail@test.com",
-		PhoneNumber: "0123456",
-		DateOfBirth: 1235679,
-		Gender:      &gender,
-	}
-
-	user, err := suite.service.Register(&userDto)
-
-	assert.NotNil(suite.T(), user)
-	assert.Nil(suite.T(), err)
-
-	suite.service.UserRepo.DeleteUser(user)
-}
-
 func (suite *UserServiceIntegrationTestSuite) TestIntegrationUserService_Update_UserDoesNotExist() {
 	userDto := dto.UserUpdateDTO{}
 	userDto.ID = 100

@@ -35,8 +35,8 @@ services:
       SERVER_PORT: 9093
       AMQP_SERVER_URL: amqp://guest:guest@rabbitmq:5673/
       AUTH0_DOMAIN: ten-test.eu.auth0.com
-      AUTH0_CLIENT_ID: QkfzqCPTnS34jOamg16xy27lAJepAXvs
-      AUTH0_CLIENT_SECRET: 7EMVBSCVTo5lWrFGrARzL8uDypW-tKh0Xe5TxVtRZSR8hndHDsNSfklp9WzyfF8d
+      AUTH0_CLIENT_ID: VEoiS6gjRN5S5wdm4qKqgphWh5rHp420
+      AUTH0_CLIENT_SECRET: 6hJj_WWJwHQ8bQEua_cTEOk1p6_k4SQBeqfQBGCjGWfvExsaQYjweF-OHqARfKZL
       AUTH0_AUDIENCE: https://ten-test.eu.auth0.com/api/v2/
     ports:
       - 9093
