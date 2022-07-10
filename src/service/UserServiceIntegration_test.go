@@ -123,7 +123,7 @@ func (suite *UserServiceIntegrationTestSuite) TestIntegrationUserService_Registe
 
 	user, err := suite.service.Register(&userDto)
 
-	assert.Nil(suite.T(), user)
+	assert.Equal(suite.T(), -1, user)
 	assert.NotNil(suite.T(), err)
 }
 
@@ -137,7 +137,7 @@ func (suite *UserServiceIntegrationTestSuite) TestIntegrationUserService_Registe
 
 	user, err := suite.service.Register(&userDto)
 
-	assert.Nil(suite.T(), user)
+	assert.Equal(suite.T(), -1, user)
 	assert.NotNil(suite.T(), err)
 }
 
@@ -156,7 +156,7 @@ func (suite *UserServiceIntegrationTestSuite) TestIntegrationUserService_Registe
 
 	user, err := suite.service.Register(&userDto)
 
-	assert.Nil(suite.T(), user)
+	assert.Equal(suite.T(), -1, user)
 	assert.NotNil(suite.T(), err)
 }
 
@@ -241,7 +241,7 @@ func (suite *UserServiceIntegrationTestSuite) TestIntegrationUserService_GetNoti
 	notifications := suite.service.GetNotifications("auth0|62cac9f9117230969f05f366")
 
 	assert.NotNil(suite.T(), notifications)
-	assert.Equal(suite.T(), true, notifications.FollowNotifications)
+	assert.Equal(suite.T(), false, notifications.FollowNotifications)
 	assert.Equal(suite.T(), false, notifications.MessageNotifications)
 	assert.Equal(suite.T(), false, notifications.LikeNotifications)
 	assert.Equal(suite.T(), false, notifications.CommentNotifications)
