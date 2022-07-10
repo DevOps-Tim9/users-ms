@@ -1,0 +1,67 @@
+version: "3.7"
+
+services:
+  users-database-test:
+    image: postgres:13
+    restart: always
+    networks:
+      - users-ms-test
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: DevOps-Users-test
+    healthcheck:
+      test: pg_isready -U postgres -d DevOps-Users-test
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    ports:
+      - 5432
+
+  users-server-test:
+    build:
+      dockerfile: Dockerfile.test
+      context: .
+    networks:
+      - users-ms-test
+      - network-for-ms
+    environment:
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: admin
+      DATABASE_DOMAIN: users-database-test
+      DATABASE_SCHEMA: DevOps-Users-test
+      DATABASE_PORT: 5432
+      SERVER_PORT: 9093
+      AMQP_SERVER_URL: amqp://guest:guest@rabbitmq:5673/
+      AUTH0_DOMAIN: ten-test.eu.auth0.com
+      AUTH0_CLIENT_ID: VEoiS6gjRN5S5wdm4qKqgphWh5rHp420
+      AUTH0_CLIENT_SECRET: 6hJj_WWJwHQ8bQEua_cTEOk1p6_k4SQBeqfQBGCjGWfvExsaQYjweF-OHqARfKZL
+      AUTH0_AUDIENCE: https://ten-test.eu.auth0.com/api/v2/
+    ports:
+      - 9093
+    depends_on:
+      users-database-test:
+        condition: service_healthy
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    networks:
+      - network-for-ms
+    volumes:
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    ports:
+      - 15672
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 5s
+      timeout: 15s
+      retries: 5
+    restart: always
+
+networks:
+  users-ms-test:
+    name: users-ms-test
+    driver: bridge
+  network-for-ms:
+    name: network-for-ms
