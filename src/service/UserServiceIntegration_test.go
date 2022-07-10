@@ -100,7 +100,7 @@ func (suite *UserServiceIntegrationTestSuite) TestIntegrationUserService_GetByEm
 }
 
 func (suite *UserServiceIntegrationTestSuite) TestIntegrationUserService_GetByID_UserDoesNotExist() {
-	id := 2
+	id := 2000000
 
 	user, err := suite.service.GetByID(id)
 
@@ -168,7 +168,7 @@ func (suite *UserServiceIntegrationTestSuite) TestIntegrationUserService_Registe
 		FirstName:   "test",
 		LastName:    "test",
 		Password:    "testtest123",
-		Email:       "testemail@test.com",
+		Email:       "testemailemail@test.com",
 		PhoneNumber: "0123456",
 		DateOfBirth: 1235679,
 		Gender:      &gender,
@@ -178,6 +178,8 @@ func (suite *UserServiceIntegrationTestSuite) TestIntegrationUserService_Registe
 
 	assert.NotNil(suite.T(), user)
 	assert.Nil(suite.T(), err)
+
+	suite.service.UserRepo.DeleteUser(user)
 }
 
 func (suite *UserServiceIntegrationTestSuite) TestIntegrationUserService_Update_UserDoesNotExist() {
@@ -206,12 +208,12 @@ func (suite *UserServiceIntegrationTestSuite) TestIntegrationUserService_Update_
 
 	assert.NotNil(suite.T(), user)
 	assert.Nil(suite.T(), err)
-	assert.Emptyf(suite.T(), userDto.FirstName, user.FirstName)
+	assert.Equal(suite.T(), userDto.FirstName, user.FirstName)
 }
 
 func (suite *UserServiceIntegrationTestSuite) TestIntegrationUserService_BlockUser_UserDoesNotExist() {
 
-	err := suite.service.BlockUser(1000, "auth0|62cac9f9117230969f05f366")
+	err := suite.service.BlockUser(10000000, "auth0|62cac9f9117230969f05f366")
 
 	assert.NotNil(suite.T(), err)
 }
@@ -233,6 +235,14 @@ func (suite *UserServiceIntegrationTestSuite) TestIntegrationUserService_SetNoti
 	}
 
 	err := suite.service.SetNotifications(&notifications, "auth0|62cac9f9117230969f05f366")
+
+	n := suite.service.GetNotifications("auth0|62cac9f9117230969f05f366")
+
+	assert.NotNil(suite.T(), notifications)
+	assert.Equal(suite.T(), true, n.FollowNotifications)
+	assert.Equal(suite.T(), false, n.MessageNotifications)
+	assert.Equal(suite.T(), false, n.LikeNotifications)
+	assert.Equal(suite.T(), false, n.CommentNotifications)
 
 	assert.Nil(suite.T(), err)
 }
