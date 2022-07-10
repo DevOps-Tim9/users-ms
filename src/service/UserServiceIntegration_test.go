@@ -57,6 +57,7 @@ func (suite *UserServiceIntegrationTestSuite) SetupSuite() {
 	gender := model.Female
 	suite.users = []model.User{
 		{
+			ID:          1,
 			FirstName:   "ime",
 			LastName:    "prezime",
 			Email:       "test@test.com",
@@ -166,7 +167,7 @@ func (suite *UserServiceIntegrationTestSuite) TestIntegrationUserService_Registe
 		Username:    "test-username",
 		FirstName:   "test",
 		LastName:    "test",
-		Password:    "test",
+		Password:    "testtest123",
 		Email:       "testemail@test.com",
 		PhoneNumber: "0123456",
 		DateOfBirth: 1235679,
