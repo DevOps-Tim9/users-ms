@@ -102,7 +102,7 @@ func (service *UserService) GetByEmail(email string) (*dto.UserResponseDTO, erro
 func (service *UserService) GetByID(id int) (*dto.UserResponseDTO, error) {
 	service.Logger.Info(fmt.Sprintf("Getting user by id %d", id))
 	user, err := service.UserRepo.GetByID(id)
-	if err != nil {
+	if err == nil {
 		userResponse := *mapper.UserToDTO(user)
 		return &userResponse, err
 	}
