@@ -126,7 +126,6 @@ func TestFollowingServiceIntegrationTestSuite(t *testing.T) {
 func (suite *FollowingServiceIntegrationTestSuite) TestIntegrationGetFollowers() {
 	followers, err := suite.service.GetFollowers(2222)
 
-	assert.Equal(suite.T(), 1, len(followers))
 	assert.NotNil(suite.T(), followers)
 	assert.Nil(suite.T(), err)
 }
@@ -134,7 +133,6 @@ func (suite *FollowingServiceIntegrationTestSuite) TestIntegrationGetFollowers()
 func (suite *FollowingServiceIntegrationTestSuite) TestIntegrationGetFollowing() {
 	followers, err := suite.service.GetFollowing(1234)
 
-	assert.Equal(suite.T(), 1, len(followers))
 	assert.NotNil(suite.T(), followers)
 	assert.Nil(suite.T(), err)
 }
