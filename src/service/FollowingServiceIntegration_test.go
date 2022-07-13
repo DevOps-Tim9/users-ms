@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
 	_ "user-ms/src/dto"
@@ -121,18 +120,4 @@ func (suite *FollowingServiceIntegrationTestSuite) SetupSuite() {
 
 func TestFollowingServiceIntegrationTestSuite(t *testing.T) {
 	suite.Run(t, new(FollowingServiceIntegrationTestSuite))
-}
-
-func (suite *FollowingServiceIntegrationTestSuite) TestIntegrationGetFollowers() {
-	followers, err := suite.service.GetFollowers(2222)
-
-	assert.NotNil(suite.T(), followers)
-	assert.Nil(suite.T(), err)
-}
-
-func (suite *FollowingServiceIntegrationTestSuite) TestIntegrationGetFollowing() {
-	followers, err := suite.service.GetFollowing(1234)
-
-	assert.NotNil(suite.T(), followers)
-	assert.Nil(suite.T(), err)
 }
