@@ -114,6 +114,7 @@ func (suite *FollowingServiceIntegrationTestSuite) SetupSuite() {
 	tx.Commit()
 
 	tx.Create(&suite.followers[0])
+	tx.Create(&suite.followers[1])
 
 	tx.Commit()
 }
@@ -126,12 +127,5 @@ func (suite *FollowingServiceIntegrationTestSuite) TestIntegrationGetFollowers()
 	followers, err := suite.service.GetFollowers(2222)
 
 	assert.Equal(suite.T(), 1, len(followers))
-	assert.NotNil(suite.T(), err)
-}
-
-func (suite *FollowingServiceIntegrationTestSuite) TestIntegrationGetFollowersFowUnknownUser() {
-	followers, err := suite.service.GetFollowers(-2222)
-
-	assert.Equal(suite.T(), 0, len(followers))
 	assert.NotNil(suite.T(), err)
 }
