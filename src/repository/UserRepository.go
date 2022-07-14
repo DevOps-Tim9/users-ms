@@ -18,6 +18,7 @@ type IUserRepository interface {
 	GetByID(int) (*model.User, error)
 	GetByAuth0ID(string) (*model.User, error)
 	GetByEmail(string) (*dto.UserResponseDTO, error)
+	GetByUsername(string) []model.User
 	UnblockUser(int, int) error
 	GetBlockedUsers(int) []model.User
 	CreateAdmin([]model.User)
@@ -94,6 +95,14 @@ func (repo *UserRepository) GetByEmail(email string) (*dto.UserResponseDTO, erro
 	}
 
 	return mapper.UserToDTO(&userEntity), nil
+}
+
+func (repo *UserRepository) GetByUsername(username string) []model.User {
+	var req []model.User
+
+	repo.Database.Where("lower(username) like lower(?)", "%"+username+"%").Find(&req)
+
+	return req
 }
 
 func (repo *UserRepository) UnblockUser(blockingID int, userID int) error {

@@ -58,6 +58,17 @@ func (handler *UserHandler) GetByEmail(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
+func (handler *UserHandler) GetByUsername(ctx *gin.Context) {
+	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "GET /users/username")
+	defer span.Finish()
+
+	username := ctx.Query("username")
+
+	users := handler.Service.GetByUsername(username)
+
+	ctx.JSON(http.StatusOK, users)
+}
+
 func (handler *UserHandler) GetByID(ctx *gin.Context) {
 	span, _ := opentracing.StartSpanFromContext(ctx.Request.Context(), "GET /users/:id")
 	defer span.Finish()

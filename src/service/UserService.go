@@ -23,6 +23,7 @@ type UserService struct {
 type IUserService interface {
 	Register(*dto.RegistrationRequestDTO) (int, error)
 	GetByEmail(string) (*dto.UserResponseDTO, error)
+	GetByUsername(string) []dto.UserResponseDTO
 	Update(*dto.UserUpdateDTO) (*dto.UserResponseDTO, error)
 	BlockUser(int, string) error
 	UnblockUser(int, string) error
@@ -92,6 +93,20 @@ func (service *UserService) Register(userToRegister *dto.RegistrationRequestDTO)
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(bytes), err
+}
+
+func (service *UserService) GetByUsername(username string) []dto.UserResponseDTO {
+	service.Logger.Info(fmt.Sprintf("Getting users by username %s", username))
+
+	users := service.UserRepo.GetByUsername(username)
+
+	res := make([]dto.UserResponseDTO, len(users))
+
+	for i := 0; i < len(users); i++ {
+		res[i] = *mapper.UserToDTO(&users[i])
+	}
+
+	return res
 }
 
 func (service *UserService) GetByEmail(email string) (*dto.UserResponseDTO, error) {

@@ -73,3 +73,7 @@ func (u *UserRepositoryMock) GetBlockedUsers(userID int) []model.User {
 
 func (u *UserRepositoryMock) CreateAdmin([]model.User) {
 }
+
+func (u *UserRepositoryMock) GetByUsername(username string) []model.User {
+	panic("")
+}
