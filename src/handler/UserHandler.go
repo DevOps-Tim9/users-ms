@@ -209,3 +209,24 @@ func (handler *UserHandler) GetNotifications(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, notificationSettings)
 }
+
+func (handler *UserHandler) GetAll(ctx *gin.Context) {
+	users, err := handler.Service.GetAll()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	ctx.JSON(http.StatusOK, users)
+}
+
+func (handler *UserHandler) GetByParam(ctx *gin.Context) {
+	searchParam := ctx.Query("param")
+	users, err := handler.Service.GetByParam(searchParam)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	ctx.JSON(http.StatusOK, users)
+}

@@ -114,6 +114,11 @@ func (service *UserService) GetByEmail(email string) (*dto.UserResponseDTO, erro
 	return service.UserRepo.GetByEmail(email)
 }
 
+func (service *UserService) GetAll() ([]*dto.UserResponseDTO, error) {
+	service.Logger.Info("Getting all users")
+	return service.UserRepo.GetAll()
+}
+
 func (service *UserService) GetByID(id int) (*dto.UserResponseDTO, error) {
 	service.Logger.Info(fmt.Sprintf("Getting user by id %d", id))
 	user, err := service.UserRepo.GetByID(id)
@@ -229,4 +234,9 @@ func (service *UserService) GetNotifications(userAuth0ID string) *dto.Notificati
 	notificationSettings := mapper.UserToNotificationsDTO(userEntity)
 
 	return notificationSettings
+}
+
+func (service *UserService) GetByParam(param string) ([]*dto.UserResponseDTO, error) {
+	service.Logger.Info("Getting users by param")
+	return service.UserRepo.GetBySearchParam(param)
 }
