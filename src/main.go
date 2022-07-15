@@ -82,6 +82,8 @@ func initUserHandler(service *service.UserService) *handler.UserHandler {
 
 func handleUserFunc(handler *handler.UserHandler, router *gin.Engine) {
 	router.POST("/register", handler.Register)
+	router.GET("/users/search", handler.GetByParam)
+	router.GET("/usersAll", handler.GetAll)
 	router.GET("/users", handler.GetByEmail)
 	router.GET("/users/username", handler.GetByUsername)
 	router.PUT("/users", handler.Update)

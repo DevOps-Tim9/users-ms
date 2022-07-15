@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"user-ms/src/dto"
 	"user-ms/src/mapper"
 	"user-ms/src/model"
@@ -22,6 +23,8 @@ type IUserRepository interface {
 	UnblockUser(int, int) error
 	GetBlockedUsers(int) []model.User
 	CreateAdmin([]model.User)
+	GetBySearchParam(param string) ([]*dto.UserResponseDTO, error)
+	GetAll() ([]*dto.UserResponseDTO, error)
 }
 
 func NewUserRepository(database *gorm.DB) IUserRepository {
@@ -95,6 +98,29 @@ func (repo *UserRepository) GetByEmail(email string) (*dto.UserResponseDTO, erro
 	}
 
 	return mapper.UserToDTO(&userEntity), nil
+}
+
+func (repo *UserRepository) GetAll() ([]*dto.UserResponseDTO, error) {
+	var users []model.User
+	repo.Database.Find(&users)
+	var userDTO []*dto.UserResponseDTO
+	for _, user := range users {
+		userDTO = append(userDTO, mapper.UserToDTO(&user))
+	}
+	return userDTO, nil
+}
+
+func (repo *UserRepository) GetBySearchParam(param string) ([]*dto.UserResponseDTO, error) {
+	param = "%" + strings.ToLower(param) + "%"
+	var users []model.User
+
+	repo.Database.Where("lower(first_name)  like ? or  lower(last_name)  like ? or  lower(username)  like  ? or lower(email)  like  ?",
+		param, param, param, param).Find(&users)
+	var userDTO []*dto.UserResponseDTO
+	for _, user := range users {
+		userDTO = append(userDTO, mapper.UserToDTO(&user))
+	}
+	return userDTO, nil
 }
 
 func (repo *UserRepository) GetByUsername(username string) []model.User {
