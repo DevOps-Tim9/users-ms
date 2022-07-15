@@ -11,6 +11,22 @@ type UserRepositoryMock struct {
 	mock.Mock
 }
 
+func (u *UserRepositoryMock) GetBySearchParam(param string) ([]*dto.UserResponseDTO, error) {
+	args := u.Called(param)
+	if args.Get(1) == nil {
+		return args.Get(0).([]*dto.UserResponseDTO), nil
+	}
+	return nil, args.Get(1).(error)
+}
+
+func (u *UserRepositoryMock) GetAll() ([]*dto.UserResponseDTO, error) {
+	args := u.Called()
+	if args.Get(1) == nil {
+		return args.Get(0).([]*dto.UserResponseDTO), nil
+	}
+	return nil, args.Get(1).(error)
+}
+
 func (u *UserRepositoryMock) AddUser(user *model.User) (int, error) {
 	args := u.Called(user)
 	if args.Get(1) == nil {

@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/opentracing/opentracing-go"
+	"github.com/uber/jaeger-client-go"
 	"io"
 	"net/http"
 	"os"
@@ -18,13 +20,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
 	"github.com/streadway/amqp"
-	"github.com/uber/jaeger-client-go"
 	"github.com/uber/jaeger-client-go/config"
 )
 
@@ -32,21 +32,13 @@ var db *gorm.DB
 var err error
 
 func initDB() (*gorm.DB, error) {
-	host := os.Getenv("DATABASE_DOMAIN")
-	user := os.Getenv("DATABASE_USERNAME")
-	password := os.Getenv("DATABASE_PASSWORD")
-	name := os.Getenv("DATABASE_SCHEMA")
-	port := os.Getenv("DATABASE_PORT")
+	user := "postgres"
+	pass := "admin"
+	port := "5432"
+	dbName := "AgentApp"
 
-	connectionString := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		host,
-		user,
-		password,
-		name,
-		port,
-	)
-	db, err = gorm.Open("postgres", connectionString)
+	connString := fmt.Sprintf("host=localhost port=%s user=%s dbname=%s sslmode=disable password=%s", port, user, dbName, pass)
+	db, err = gorm.Open("postgres", connString)
 
 	if err != nil {
 		panic("failed to connect database")
@@ -83,7 +75,8 @@ func initUserHandler(service *service.UserService) *handler.UserHandler {
 func handleUserFunc(handler *handler.UserHandler, router *gin.Engine) {
 	router.POST("/register", handler.Register)
 	router.GET("/users/search", handler.GetByParam)
-	router.GET("/usersAll", handler.GetAll)
+	router.GET("/usersAll", handler.GetAll) //Glup naziv zbog ovog dole da ne bih menjao sve GetByParam
+
 	router.GET("/users", handler.GetByEmail)
 	router.GET("/users/username", handler.GetByUsername)
 	router.PUT("/users", handler.Update)
@@ -289,7 +282,7 @@ func main() {
 
 	defer channel.Close()
 
-	port := fmt.Sprintf(":%s", os.Getenv("SERVER_PORT"))
+	//port := fmt.Sprintf(":%s", os.Getenv("SERVER_PORT"))
 
 	logger.Info("Initializing Jaeger")
 	tracer, trCloser, err := InitJaeger()
@@ -322,8 +315,8 @@ func main() {
 	handleFollowingFunc(followingHandler, router)
 	handleUserFunc(userHandler, router)
 
-	addPredefinedAdmins(userRepo)
+	//addPredefinedAdmins(userRepo)
 
-	logger.Info(fmt.Sprintf("Starting server on port %s", port))
-	http.ListenAndServe(port, cors.AllowAll().Handler(router))
+	logger.Info(fmt.Sprintf("Starting server on port %s", ":5001"))
+	http.ListenAndServe(":5001", cors.AllowAll().Handler(router))
 }
