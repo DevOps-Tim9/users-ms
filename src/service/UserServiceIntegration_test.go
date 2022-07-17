@@ -42,6 +42,8 @@ func (suite *UserServiceIntegrationTestSuite) SetupSuite() {
 
 	db.AutoMigrate(model.User{})
 
+	db.Where("1=1").Delete(model.User{})
+
 	userRepository := repository.UserRepository{Database: db}
 
 	auth0Client := auth0.NewAuth0Client(os.Getenv("AUTH0_DOMAIN"), os.Getenv("AUTH0_CLIENT_ID"), os.Getenv("AUTH0_CLIENT_SECRET"), os.Getenv("AUTH0_AUDIENCE"))
@@ -57,7 +59,6 @@ func (suite *UserServiceIntegrationTestSuite) SetupSuite() {
 	gender := model.Female
 	suite.users = []model.User{
 		{
-			ID:          1,
 			FirstName:   "ime",
 			LastName:    "prezime",
 			Email:       "test@test.com",
