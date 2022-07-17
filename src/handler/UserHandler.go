@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 	"user-ms/src/dto"
 	"user-ms/src/service"
 
@@ -33,12 +34,15 @@ func (handler *UserHandler) Register(ctx *gin.Context) {
 	}
 
 	userID, err := handler.Service.Register(&userToRegister)
+
 	if err != nil {
+		AddSystemEvent(time.Now().Format("2006-01-02 15:04:05"), fmt.Sprintf("User with username %s failed to register", userToRegister.Username))
 		handler.Logger.Debug(err.Error())
-		fmt.Println(err)
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
+
+	AddSystemEvent(time.Now().Format("2006-01-02 15:04:05"), fmt.Sprintf("New user registered with id %d", userID))
 
 	ctx.JSON(http.StatusCreated, userID)
 }
@@ -97,12 +101,15 @@ func (handler *UserHandler) Update(ctx *gin.Context) {
 	}
 
 	userDTO, err := handler.Service.Update(&userToUpdate)
+
 	if err != nil {
+		AddSystemEvent(time.Now().Format("2006-01-02 15:04:05"), fmt.Sprintf("User with id %d failed to update his profile info", userDTO.ID))
 		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
 
+	AddSystemEvent(time.Now().Format("2006-01-02 15:04:05"), fmt.Sprintf("User with id %d updated his profile info", userDTO.ID))
 	ctx.JSON(http.StatusOK, userDTO)
 }
 
@@ -136,12 +143,15 @@ func (handler *UserHandler) BlockUser(ctx *gin.Context) {
 	id, _ := getId(blockingID)
 
 	err := handler.Service.BlockUser(id, fmt.Sprint(claims["sub"]))
-	fmt.Println(err)
+
 	if err != nil {
 		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusNotFound, err.Error())
 		return
 	}
+
+	AddSystemEvent(time.Now().Format("2006-01-02 15:04:05"), fmt.Sprintf("User with auth0 id %s blocked user with id %d", fmt.Sprint(claims["sub"]), id))
+
 	ctx.JSON(http.StatusOK, "User successfully blocked")
 }
 
@@ -162,6 +172,9 @@ func (handler *UserHandler) UnblockUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, err.Error())
 		return
 	}
+
+	AddSystemEvent(time.Now().Format("2006-01-02 15:04:05"), fmt.Sprintf("User with auth0 id %s unblocked user with id %d", fmt.Sprint(claims["sub"]), id))
+
 	ctx.JSON(http.StatusOK, "User successfully unblocked")
 }
 
@@ -191,10 +204,13 @@ func (handler *UserHandler) SetNotifications(ctx *gin.Context) {
 
 	err := handler.Service.SetNotifications(&notificationSettings, fmt.Sprint(claims["sub"]))
 	if err != nil {
+		AddSystemEvent(time.Now().Format("2006-01-02 15:04:05"), fmt.Sprintf("User with auth0 id %s failed to update notifications settings", fmt.Sprint(claims["sub"])))
 		handler.Logger.Debug(err.Error())
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
+
+	AddSystemEvent(time.Now().Format("2006-01-02 15:04:05"), fmt.Sprintf("User with auth0 id %s updated notifications settings", fmt.Sprint(claims["sub"])))
 
 	ctx.JSON(http.StatusOK, true)
 }

@@ -38,10 +38,51 @@ services:
       AUTH0_CLIENT_ID: VEoiS6gjRN5S5wdm4qKqgphWh5rHp420
       AUTH0_CLIENT_SECRET: 6hJj_WWJwHQ8bQEua_cTEOk1p6_k4SQBeqfQBGCjGWfvExsaQYjweF-OHqARfKZL
       AUTH0_AUDIENCE: https://ten-test.eu.auth0.com/api/v2/
+      EVENTS_MS: http://localhost:9081/events
     ports:
       - 9093
     depends_on:
       users-database-test:
+        condition: service_healthy
+
+  database-events-test:
+    image: postgres:13
+    restart: always
+    networks:
+      - events-ms
+      - network-for-ms
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: SystemEvents-test
+    healthcheck:
+      test: pg_isready -U postgres -d SystemEvents-test
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    ports:
+      - "5451:5432"
+
+  events-server:
+    build:
+      context: 'https://github.com/DevOps-Tim9/events-ms.git#develop'
+      dockerfile: Dockerfile
+    restart: on-failure
+    networks:
+      - events-ms
+      - network-for-ms
+    environment:
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: admin
+      DATABASE_DOMAIN: database-events-test
+      DATABASE_SCHEMA: SystemEvents-test
+      DATABASE_PORT: 5432
+      SERVER_PORT: 9081
+    ports:
+      - "9081:9081"
+    depends_on:
+      database-events-test:
         condition: service_healthy
 
   rabbitmq:
@@ -60,6 +101,9 @@ services:
     restart: always
 
 networks:
+  events-ms:
+    name: events-ms
+    driver: bridge
   users-ms-test:
     name: users-ms-test
     driver: bridge
