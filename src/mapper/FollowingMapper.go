@@ -7,7 +7,6 @@ import (
 
 func FollowingDTOToFollower(followingRequestDTO *dto.FollowingRequestDTO) *model.Follower {
 	var follower model.Follower
-	follower.ID = followingRequestDTO.ID
 	follower.FollowerId = followingRequestDTO.FollowerId
 	follower.FollowingId = followingRequestDTO.FollowingId
 	return &follower
