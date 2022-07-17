@@ -66,8 +66,21 @@ func (service *FollowingService) UpdateRequest(reqId int, request *dto.Following
 	}
 	status := model.RequestStatus(request.RequestStatus)
 	if model.ACCEPTED == status {
+		_, err = service.FollowerRepository.AddFollower(mapper.FollowingDTOToFollower(request))
+		if err != nil {
+			service.Logger.Debug(err.Error())
+			return nil, errors.New("can't create the request")
+		}
+
 		service.Logger.Info(fmt.Sprintf("Accepting following request with id %d", reqId))
-		_, _ = service.FollowerRepository.AddFollower(mapper.FollowingDTOToFollower(request))
+		follower, _ := service.UserRepository.GetByID(request.FollowerId)
+		following, _ := service.UserRepository.GetByID(request.FollowingId)
+
+		followType := dto.Follow
+		notification := dto.NotificationDTO{Message: fmt.Sprintf("%s started following you.", follower.Username), UserAuth0ID: following.Auth0ID, NotificationType: &followType}
+
+		service.Logger.Info("Adding following notification to rabbitMQ")
+		rabbitmq.AddNotification(&notification, service.RabbitMQChannel)
 	}
 	return mapper.RequestToFollowingDTO(followingRequest), nil
 }

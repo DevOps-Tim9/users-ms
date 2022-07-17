@@ -62,7 +62,8 @@ func (repo *FollowerRepository) GetFollowers(id int) []model.Follower {
 }
 
 func (repo *FollowerRepository) RemoveFollowing(id int, followingId int) error {
-	result := repo.Database.Where("follower_id = ? and following_id = ?", id, followingId).Delete(&model.Follower{})
+	var follower model.Follower
+	result := repo.Database.Where("follower_id = ? and following_id = ?", id, followingId).Delete(&follower)
 	if result.Error != nil {
 		return result.Error
 	}

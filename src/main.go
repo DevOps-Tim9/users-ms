@@ -119,7 +119,7 @@ func handleFollowingFunc(handler *handler.FollowingHandler, router *gin.Engine) 
 	router.GET("/requests/:id", handler.GetRequestsByFollowingID)
 	router.GET("user/:id/followers", handler.GetFollowers)
 	router.GET("user/:id/following", handler.GetFollowing)
-	router.DELETE("user/:id/removeFollower/:followingId+", handler.RemoveFollowing)
+	router.DELETE("user/:id/removeFollower/:followingId", handler.RemoveFollowing)
 }
 
 func addPredefinedAdmins(repo *repository.UserRepository) {
