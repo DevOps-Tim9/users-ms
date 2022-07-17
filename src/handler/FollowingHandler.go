@@ -1,9 +1,13 @@
 package handler
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
+	"time"
 	"user-ms/src/dto"
 	"user-ms/src/service"
 
@@ -28,7 +32,6 @@ func (handler *FollowingHandler) UpdateRequest(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Println(id)
 	var requestDTO dto.FollowingRequestDTO
 	if err := ctx.ShouldBindJSON(&requestDTO); err != nil {
 		handler.Logger.Debug(err.Error())
@@ -42,6 +45,8 @@ func (handler *FollowingHandler) UpdateRequest(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
+
+	handler.AddSystemEvent(time.Now().Format("2006-01-02 15:04:05"), fmt.Sprintf("Following request with id %d updated", id))
 
 	ctx.JSON(http.StatusCreated, requestId)
 }
@@ -63,6 +68,8 @@ func (handler *FollowingHandler) CreateRequest(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
+
+	handler.AddSystemEvent(time.Now().Format("2006-01-02 15:04:05"), fmt.Sprintf("Following request with id %d created", requestId))
 
 	ctx.JSON(http.StatusCreated, requestId)
 }
@@ -114,6 +121,8 @@ func (handler *FollowingHandler) CreatFollower(ctx *gin.Context) {
 		return
 	}
 
+	handler.AddSystemEvent(time.Now().Format("2006-01-02 15:04:05"), fmt.Sprintf("User with id %d started following user with id %d", requestDTO.FollowerId, requestDTO.FollowingId))
+
 	ctx.JSON(http.StatusCreated, requestId)
 }
 
@@ -160,5 +169,28 @@ func (handler *FollowingHandler) RemoveFollowing(ctx *gin.Context) {
 		return
 	}
 
+	handler.AddSystemEvent(time.Now().Format("2006-01-02 15:04:05"), fmt.Sprintf("User with id %d is not foolowing user %d anymore", id, followingId))
+
 	ctx.JSON(http.StatusCreated, nil)
+}
+
+func (handler *FollowingHandler) AddSystemEvent(time string, message string) error {
+	event := dto.EventRequestDTO{
+		Timestamp: time,
+		Message:   message,
+	}
+
+	b, _ := json.Marshal(&event)
+	endpoint := os.Getenv("EVENTS_MS")
+	handler.Logger.Info("Sending system event to events-ms")
+	req, _ := http.NewRequest("POST", endpoint, bytes.NewBuffer(b))
+	req.Header.Set("content-type", "application/json")
+
+	_, err := http.DefaultClient.Do(req)
+	if err != nil {
+		handler.Logger.Debug("Error happened during sending system event")
+		return err
+	}
+
+	return nil
 }
