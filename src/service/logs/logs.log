@@ -1,0 +1,42 @@
+{"level":"info","msg":"Updating following request with id 1234","service":"","time":"2022-06-23T22:17:49+02:00"}
+{"level":"info","msg":"Accepting following request with id 1234","service":"","time":"2022-06-23T22:17:49+02:00"}
+{"level":"info","msg":"Updating following request with id 1234","service":"","time":"2022-06-23T22:18:09+02:00"}
+{"level":"info","msg":"Accepting following request with id 1234","service":"","time":"2022-06-23T22:18:09+02:00"}
+{"level":"info","msg":"Getting blocked users for user 1","service":"","time":"2022-06-23T22:18:22+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-06-23T22:18:22+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-06-23T22:18:22+02:00"}
+{"level":"info","msg":"Adding user to database with username username","service":"","time":"2022-06-23T22:18:22+02:00"}
+{"level":"info","msg":"Calling Auth0 to add user with username username","service":"","time":"2022-06-23T22:18:22+02:00"}
+{"level":"info","msg":"Updating user with username username","service":"","time":"2022-06-23T22:18:22+02:00"}
+{"level":"info","msg":"Succesfully registered user with id 1","service":"","time":"2022-06-23T22:18:22+02:00"}
+{"level":"info","msg":"Updating user with id 1","service":"","time":"2022-06-23T22:18:22+02:00"}
+{"level":"info","msg":"Updating user with id 1","service":"","time":"2022-06-23T22:18:22+02:00"}
+{"level":"info","msg":"Updating user with id 1 in Auth0","service":"","time":"2022-06-23T22:18:22+02:00"}
+{"level":"info","msg":"Succesfully updated user with 1","service":"","time":"2022-06-23T22:18:22+02:00"}
+{"level":"info","msg":"Getting blocked users for user 1","service":"","time":"2022-06-23T22:18:29+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-06-23T22:18:29+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-06-23T22:18:29+02:00"}
+{"level":"info","msg":"Adding user to database with username username","service":"","time":"2022-06-23T22:18:29+02:00"}
+{"level":"info","msg":"Calling Auth0 to add user with username username","service":"","time":"2022-06-23T22:18:29+02:00"}
+{"level":"info","msg":"Updating user with username username","service":"","time":"2022-06-23T22:18:29+02:00"}
+{"level":"info","msg":"Succesfully registered user with id 1","service":"","time":"2022-06-23T22:18:29+02:00"}
+{"level":"info","msg":"Updating user with id 1","service":"","time":"2022-06-23T22:18:29+02:00"}
+{"level":"info","msg":"Updating user with id 1","service":"","time":"2022-06-23T22:18:29+02:00"}
+{"level":"info","msg":"Updating user with id 1 in Auth0","service":"","time":"2022-06-23T22:18:29+02:00"}
+{"level":"info","msg":"Succesfully updated user with 1","service":"","time":"2022-06-23T22:18:29+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-07-10T15:00:49+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-07-10T15:00:49+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-07-10T15:02:57+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-07-10T15:02:57+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-07-10T15:06:38+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-07-10T15:06:38+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-07-10T15:11:29+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-07-10T15:11:29+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-07-10T15:16:32+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-07-10T15:16:32+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-07-10T15:21:12+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-07-10T15:21:12+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-07-10T15:24:41+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-07-10T15:24:41+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-07-10T15:25:24+02:00"}
+{"level":"info","msg":"Getting user by email","service":"","time":"2022-07-10T15:25:24+02:00"}
